@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Learning in Practice — Antigravity Workshop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700;900&display=swap');
+
+        :root {
+            --r-background-color: #0d1117;
+            --r-main-font: 'DM Sans', sans-serif;
+            --r-heading-font: 'DM Sans', sans-serif;
+            --r-code-font: 'JetBrains Mono', monospace;
+            --r-main-color: #c9d1d9;
+            --r-heading-color: #f0f6fc;
+            --r-link-color: #8b5cf6;
+            --g-blue: #4285f4;
+            --g-red: #ea4335;
+            --g-yellow: #fbbc04;
+            --g-green: #34a853;
+            --agy-purple: #8b5cf6;
+            --agy-cyan: #22d3ee;
+            --agy-surface: #161b22;
+            --dnn-color: #ea4335;
+            --emb-color: #4285f4;
+            --pipe-color: #34a853;
+        }
+
+        .reveal { font-family: 'DM Sans', sans-serif; font-size: 30px; }
+        .reveal h1, .reveal h2, .reveal h3 { font-family: 'DM Sans', sans-serif; font-weight: 700; text-transform: none; letter-spacing: -0.03em; }
+        .reveal h1 { font-size: 2.6em; line-height: 1.1; }
+        .reveal h2 { font-size: 1.7em; }
+        .reveal h3 { font-size: 1.2em; color: var(--agy-purple); }
+        .reveal code { font-family: 'JetBrains Mono', monospace; background: rgba(139,92,246,0.12); padding: 2px 8px; border-radius: 6px; font-size: 0.82em; }
+        .reveal pre code { background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; border-left: 4px solid var(--agy-purple); font-size: 0.68em; line-height: 1.5; }
+
+        .gc-blue { color: var(--g-blue); } .gc-red { color: var(--g-red); } .gc-yellow { color: var(--g-yellow); } .gc-green { color: var(--g-green); }
+        .glow-purple { color: var(--agy-purple); text-shadow: 0 0 25px rgba(139,92,246,0.4); }
+        .glow-cyan { color: var(--agy-cyan); text-shadow: 0 0 25px rgba(34,211,238,0.4); }
+        .dnn-color { color: var(--dnn-color); } .emb-color { color: var(--emb-color); } .pipe-color { color: var(--pipe-color); }
+
+        .card { background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 22px; margin: 8px; display: inline-block; vertical-align: top; text-align: left; }
+        .card h4 { margin: 0 0 8px 0; font-size: 0.85em; }
+        .card p { font-size: 0.6em; opacity: 0.8; margin: 0; line-height: 1.4; }
+        .card-w { width: 260px; } .card-w2 { width: 340px; } .card-w3 { width: 300px; }
+        .card-dnn { border-top: 3px solid var(--dnn-color); }
+        .card-emb { border-top: 3px solid var(--emb-color); }
+        .card-pipe { border-top: 3px solid var(--pipe-color); }
+        .card-purple { border-top: 3px solid var(--agy-purple); }
+
+        .feature-box { background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(34,211,238,0.06)); border: 1px solid rgba(139,92,246,0.25); border-radius: 16px; padding: 28px; margin: 15px 0; }
+        .two-col { display: flex; gap: 35px; align-items: flex-start; }
+        .two-col > div { flex: 1; text-align: left; }
+
+        .small { font-size: 0.55em; opacity: 0.65; } .medium { font-size: 0.72em; }
+
+        .hour-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
+        .hour-pip { width: 60px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.12); }
+        .hour-pip.active { background: var(--agy-purple); box-shadow: 0 0 12px rgba(139,92,246,0.5); }
+
+        .timeline-row { display: flex; justify-content: center; align-items: flex-start; gap: 16px; margin: 25px 0; }
+        .t-block { text-align: center; width: 200px; }
+        .t-block .t-time { font-size: 0.5em; color: var(--agy-purple); font-weight: 700; }
+        .t-block .t-label { font-size: 0.52em; margin-top: 5px; line-height: 1.4; }
+        .t-arrow { font-size: 1.4em; color: var(--agy-purple); margin-top: 12px; }
+
+        .reveal ul, .reveal ol { display: block; text-align: left; margin-left: 1em; }
+        .reveal li { font-size: 0.75em; margin: 0.4em 0; line-height: 1.4; }
+
+        kbd { display: inline-block; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; padding: 2px 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.8em; }
+        .step-num { display: inline-block; width: 32px; height: 32px; line-height: 32px; border-radius: 50%; background: var(--agy-purple); color: white; text-align: center; font-weight: 700; font-size: 0.7em; margin-right: 8px; }
+
+        .pill { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.55em; font-weight: 600; }
+        .pill-dnn { background: rgba(234,67,53,0.15); color: var(--dnn-color); }
+        .pill-emb { background: rgba(66,133,244,0.15); color: var(--emb-color); }
+        .pill-pipe { background: rgba(52,168,83,0.15); color: var(--pipe-color); }
+
+        .flow-arrow { display: inline-block; color: var(--agy-purple); font-size: 1.2em; margin: 0 8px; vertical-align: middle; }
+        .flow-box { display: inline-block; background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 16px; font-size: 0.65em; vertical-align: middle; }
+
+        .reveal .slides section { padding: 20px; }
+
+        /* Neuron diagram styles */
+        .neuron-diagram { display: flex; align-items: center; justify-content: center; gap: 4px; margin: 15px 0; }
+        .neuron-circle { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.55em; font-weight: 700; color: white; }
+        .neuron-input { background: rgba(66,133,244,0.3); border: 2px solid var(--g-blue); }
+        .neuron-sum { background: rgba(139,92,246,0.3); border: 2px solid var(--agy-purple); width: 60px; height: 60px; }
+        .neuron-act { background: rgba(234,67,53,0.3); border: 2px solid var(--dnn-color); width: 60px; height: 60px; }
+        .neuron-out { background: rgba(52,168,83,0.3); border: 2px solid var(--g-green); }
+        .neuron-arrow { color: rgba(255,255,255,0.4); font-size: 1.2em; }
+        .neuron-label { font-size: 0.45em; text-align: center; opacity: 0.7; margin-top: 4px; }
+        .neuron-col { display: flex; flex-direction: column; align-items: center; }
+
+        /* Chunk diagram */
+        .chunk-visual { display: flex; gap: 6px; justify-content: center; align-items: stretch; margin: 12px 0; }
+        .chunk-block { background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; font-size: 0.5em; text-align: center; min-width: 80px; }
+        .chunk-block.active { border-color: var(--agy-purple); background: rgba(139,92,246,0.1); }
+
+        /* Comparison table */
+        .compare-table { width: 100%; border-collapse: collapse; font-size: 0.55em; margin: 10px 0; }
+        .compare-table th { background: rgba(139,92,246,0.15); color: var(--agy-purple); padding: 10px 14px; text-align: left; font-weight: 700; border-bottom: 2px solid rgba(139,92,246,0.3); }
+        .compare-table td { padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .compare-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+        /* Pipeline flow */
+        .pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; margin: 15px 0; }
+        .pipeline-step { background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 16px; font-size: 0.58em; text-align: center; }
+
+        /* RL analogy card */
+        .rl-analogy { display: flex; gap: 20px; justify-content: center; align-items: center; flex-wrap: wrap; }
+        .rl-item { text-align: center; width: 130px; }
+        .rl-icon { font-size: 2em; margin-bottom: 6px; }
+        .rl-label { font-size: 0.65em; font-weight: 700; }
+        .rl-desc { font-size: 0.5em; opacity: 0.7; margin-top: 4px; }
+        .rl-eq { font-size: 1.4em; color: var(--agy-purple); }
+    </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================== -->
+<!-- TITLE -->
+<!-- ============================== -->
+<section data-background="linear-gradient(160deg, #0d1117 0%, #1a1040 50%, #0d1117 100%)">
+    <p style="font-size:0.7em; letter-spacing:0.15em; opacity:0.5; margin-bottom:5px;">WORKSHOP / 3 HOURS</p>
+    <h1 style="font-size:2.2em;">
+        Deep Learning<br><span class="glow-purple">in Practice</span>
+    </h1>
+    <p class="medium" style="opacity:0.6; margin-top:15px;">Training DNNs / Embeddings / Chunking / Vector Search</p>
+    <p class="medium" style="margin-top:8px;">with
+        <span class="gc-blue">G</span><span class="gc-red">o</span><span class="gc-yellow">o</span><span class="gc-blue">g</span><span class="gc-green">l</span><span class="gc-red">e</span>
+        <span class="glow-purple">Antigravity</span>
+    </p>
+    <p class="small" style="margin-top:40px;">Prerequisite: Basic Python / familiarity with machine learning concepts</p>
+    <aside class="notes">Welcome to Day 2. Today we go from theory to practice: you will train a neural network, explore text embeddings, learn chunking strategies, build a vector database, and compare different ML approaches. No deep prior knowledge is assumed beyond basic Python and a general awareness of what machine learning is. Everything else we build from the ground up.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- WHAT YOU ALREADY KNOW (simplified) -->
+<!-- ============================== -->
+<section>
+    <h2>What You Already Know</h2>
+    <div style="display:flex; gap:10px; justify-content:center;">
+        <div class="card card-w card-purple">
+            <h4>Python Basics</h4>
+            <p>Variables, functions, loops, lists, dictionaries. Enough to read and write simple scripts.</p>
+        </div>
+        <div class="card card-w card-purple">
+            <h4>ML Intuition</h4>
+            <p>Data goes in, model learns patterns, predictions come out. Training = adjusting to reduce errors.</p>
+        </div>
+        <div class="card card-w card-purple">
+            <h4>Day 1 Workshop</h4>
+            <p>Antigravity IDE basics, prompting, LLM interaction. You know how to use the tools.</p>
+        </div>
+    </div>
+    <p class="medium fragment" style="margin-top:25px;">Today: <strong>hands-on building.</strong> From concepts to running code.</p>
+    <aside class="notes">Quick check: who feels comfortable writing a Python function? Who has heard of neural networks? Great. We don't assume deep technical knowledge of backpropagation or reinforcement learning. We introduce what you need as we go. The goal is to build working systems today and understand the "why" behind each piece.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- TYPES OF MACHINE LEARNING -->
+<!-- ============================== -->
+<section>
+    <h2>Types of Machine Learning</h2>
+    <div style="display:flex; gap:10px; justify-content:center;">
+        <div class="card card-w card-emb">
+            <h4 class="gc-blue">Supervised Learning</h4>
+            <p style="font-size:0.55em; margin-bottom:8px;">Learning with <strong>labeled data</strong>.</p>
+            <p>A teacher shows the correct answers. The model learns to map inputs to known outputs.<br><br><em>Example: "This image is a cat."<br>Model learns: image -> cat.</em></p>
+        </div>
+        <div class="card card-w card-purple">
+            <h4 class="glow-purple">Unsupervised Learning</h4>
+            <p style="font-size:0.55em; margin-bottom:8px;">Finding patterns in <strong>unlabeled data</strong>.</p>
+            <p>No teacher. The model discovers structure on its own through self-discovery.<br><br><em>Example: grouping customers<br>by purchase behavior.</em></p>
+        </div>
+        <div class="card card-w card-pipe">
+            <h4 class="gc-green">Reinforcement Learning</h4>
+            <p style="font-size:0.55em; margin-bottom:8px;">Learning through <strong>trial and error</strong>.</p>
+            <p>An agent takes actions, receives rewards or penalties, and learns a strategy.<br><br><em>Example: a robot learning<br>to walk by falling and adjusting.</em></p>
+        </div>
+    </div>
+    <p class="small fragment" style="margin-top:15px;">Today we focus on <strong class="gc-blue">supervised learning</strong> (Hour 1) and <strong class="glow-purple">unsupervised patterns</strong> via embeddings (Hour 2).</p>
+    <aside class="notes">These are the three big families of machine learning. Supervised learning is the most common: you have data with labels and you train a model to predict those labels. Unsupervised learning finds hidden structure without labels, like clustering. Reinforcement learning is about an agent learning from trial and error, like training a robot or playing a game. Today we will mainly work with supervised learning when we train a DNN, and we will use embeddings which are learned through a form of unsupervised or self-supervised learning.</aside>
+</section>
+
+<!-- RL ANALOGY SLIDE -->
+<section>
+    <h2>Reinforcement Learning: <span class="gc-green">A Simple Analogy</span></h2>
+    <div class="feature-box">
+        <p class="medium" style="text-align:center; margin-bottom:18px;">Think of it like <strong>training a dog</strong> at the park.</p>
+        <div class="rl-analogy">
+            <div class="rl-item">
+                <div class="rl-icon">&#x1F415;</div>
+                <div class="rl-label gc-blue">Agent</div>
+                <div class="rl-desc">The dog<br>(decision-maker)</div>
+            </div>
+            <div class="rl-eq">+</div>
+            <div class="rl-item">
+                <div class="rl-icon">&#x1F3DE;&#xFE0F;</div>
+                <div class="rl-label gc-yellow">Environment</div>
+                <div class="rl-desc">The park<br>(world to explore)</div>
+            </div>
+            <div class="rl-eq">+</div>
+            <div class="rl-item">
+                <div class="rl-icon">&#x1F356;</div>
+                <div class="rl-label gc-green">Reward</div>
+                <div class="rl-desc">A treat<br>(feedback signal)</div>
+            </div>
+            <div class="rl-eq">=</div>
+            <div class="rl-item">
+                <div class="rl-icon">&#x1F3AF;</div>
+                <div class="rl-label glow-purple">Policy</div>
+                <div class="rl-desc">Learned behavior<br>("sit" = treat!)</div>
+            </div>
+        </div>
+        <p class="small" style="margin-top:18px; text-align:center;">The dog <strong>explores</strong> (tries actions), gets <strong>rewards</strong> (treats) or <strong>penalties</strong> (no treat), and learns a <strong>policy</strong> (what to do to get more treats).</p>
+    </div>
+    <p class="small fragment" style="margin-top:8px;">Real-world RL: game AI (AlphaGo), robotics, self-driving cars, ChatGPT fine-tuning (RLHF).</p>
+    <aside class="notes">Reinforcement learning might sound complex, but the core idea is simple. Imagine training a dog. The dog is the agent, the park is the environment, the treat is the reward. The dog tries different actions: sit, roll over, bark. When it does something you like, it gets a treat. Over time it learns a policy: which actions lead to treats. This is exactly how RL works in AI. AlphaGo learned to play Go by playing millions of games and getting rewards for winning. ChatGPT was fine-tuned using RLHF, human reinforcement learning from human feedback. You don't need to master RL today, but understanding this analogy will help you see how it connects to the broader ML landscape.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- AGENDA -->
+<!-- ============================== -->
+<section>
+    <h2>Agenda</h2>
+    <div class="timeline-row">
+        <div class="t-block">
+            <div style="font-size:2em;">&#x1F525;</div>
+            <div class="t-time">HOUR 1</div>
+            <div class="t-label"><strong>Training a DNN</strong><br>PyTorch, neurons, layers,<br>training loop, evaluation</div>
+        </div>
+        <div class="t-arrow">&rarr;</div>
+        <div class="t-block">
+            <div style="font-size:2em;">&#x1F9EC;</div>
+            <div class="t-time">HOUR 2</div>
+            <div class="t-label"><strong>Embeddings + Chunking</strong><br>Vector search, chunking<br>strategies, ChromaDB</div>
+        </div>
+        <div class="t-arrow">&rarr;</div>
+        <div class="t-block">
+            <div style="font-size:2em;">&#x1F52C;</div>
+            <div class="t-time">HOUR 3</div>
+            <div class="t-label"><strong>Comparison + Decision</strong><br>DNN vs Embeddings,<br>transfer learning, when to use what</div>
+        </div>
+    </div>
+    <p class="small">Each hour: concept &rarr; code &rarr; exercise &rarr; reflect / Interactive Streamlit app available</p>
+    <aside class="notes">Three hours, three focus areas. Hour 1 is about building and training a neural network from scratch using PyTorch. Hour 2 is about embeddings: how to represent text as numbers, chunk documents properly, and build a vector search system with ChromaDB. Hour 3 brings it together: when should you train your own model versus using pre-trained embeddings? We will have hands-on exercises in each hour.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- HOUR 1: TRAINING A DNN -->
+<!-- ============================== -->
+<section data-background="linear-gradient(135deg, #1a1040 0%, #0d1117 100%)">
+    <div class="hour-bar"><div class="hour-pip active"></div><div class="hour-pip"></div><div class="hour-pip"></div></div>
+    <h1>Hour 1</h1>
+    <h2>&#x1F525; <span style="color:var(--dnn-color);">Training a DNN</span></h2>
+    <p class="medium">PyTorch + Antigravity <span class="glow-purple">Editor</span></p>
+    <aside class="notes">Let's dive into Hour 1. We are going to build a neural network from scratch. By the end of this hour, you will have trained a model that can recognize clothing items from images, achieving around 88 to 90 percent accuracy. All using PyTorch, the industry standard framework.</aside>
+</section>
+
+<!-- WHY PYTORCH -->
+<section>
+    <h2>PyTorch in 60 Seconds</h2>
+    <div class="two-col">
+        <div>
+            <h3 style="color:var(--dnn-color);">Why PyTorch?</h3>
+            <p class="medium">
+                Industry standard for research &amp; production<br>
+                Dynamic computation graph<br>
+                Pythonic and intuitive<br>
+                Powers: Meta AI, Tesla, OpenAI<br><br>
+                <strong>Core idea:</strong> Tensors + Autograd
+            </p>
+        </div>
+        <div>
+            <pre><code class="language-python">import torch
+import torch.nn as nn
+
+# Tensors = NumPy arrays with GPU support
+x = torch.randn(32, 784)  # batch of 32
+
+# Autograd = automatic differentiation
+w = torch.randn(784, 10, requires_grad=True)
+y = x @ w
+loss = y.sum()
+loss.backward()  # gradients computed!
+print(w.grad.shape)  # (784, 10)</code></pre>
+        </div>
+    </div>
+    <aside class="notes">PyTorch is the most popular deep learning framework. Think of tensors as NumPy arrays that can also run on GPUs and automatically track gradients. Autograd means you define the forward computation and PyTorch figures out how to compute the gradients for you. This is what makes training neural networks practical. You don't have to derive the math by hand.</aside>
+</section>
+
+<!-- WHAT IS A NEURON -->
+<section>
+    <h2>What is a <span class="dnn-color">Neuron</span>?</h2>
+    <div class="feature-box" style="text-align:center;">
+        <p class="medium" style="margin-bottom:15px;">A neuron takes inputs, multiplies by weights, adds them up, and applies an activation function.</p>
+        <div class="neuron-diagram">
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <div class="neuron-col">
+                    <div class="neuron-circle neuron-input">x1</div>
+                    <div class="neuron-label">input</div>
+                </div>
+                <div class="neuron-col">
+                    <div class="neuron-circle neuron-input">x2</div>
+                    <div class="neuron-label">input</div>
+                </div>
+                <div class="neuron-col">
+                    <div class="neuron-circle neuron-input">x3</div>
+                    <div class="neuron-label">input</div>
+                </div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                <span class="neuron-arrow">&rarr; w1</span>
+                <span class="neuron-arrow">&rarr; w2</span>
+                <span class="neuron-arrow">&rarr; w3</span>
+            </div>
+            <div class="neuron-col">
+                <div class="neuron-circle neuron-sum">&Sigma; + b</div>
+                <div class="neuron-label">weighted sum</div>
+            </div>
+            <span class="neuron-arrow">&rarr;</span>
+            <div class="neuron-col">
+                <div class="neuron-circle neuron-act">f(x)</div>
+                <div class="neuron-label">activation</div>
+            </div>
+            <span class="neuron-arrow">&rarr;</span>
+            <div class="neuron-col">
+                <div class="neuron-circle neuron-out">y</div>
+                <div class="neuron-label">output</div>
+            </div>
+        </div>
+        <p class="small" style="margin-top:12px;">
+            <code>y = f(w1*x1 + w2*x2 + w3*x3 + b)</code> &mdash; that's it. Stack many neurons &rarr; <strong>neural network</strong>.
+        </p>
+    </div>
+    <aside class="notes">This is the fundamental building block. A single neuron takes inputs, multiplies each by a weight, sums them up, adds a bias, and passes the result through an activation function. The activation function introduces non-linearity, which is what lets neural networks learn complex patterns. Stack many neurons in layers, and you get a neural network. The weights and biases are the parameters that the network learns during training.</aside>
+</section>
+
+<!-- BUILDING A NEURAL NETWORK -->
+<section>
+    <h2>Building a Neural Network</h2>
+    <div class="feature-box">
+        <pre><code class="language-python">class FashionNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.network = nn.Sequential(
+            nn.Flatten(),                  # 28x28 image -> 784 numbers
+            nn.Linear(784, 256),           # Hidden layer 1 (256 neurons)
+            nn.ReLU(),                     # Activation function
+            nn.Dropout(0.3),               # Regularization (prevent memorizing)
+            nn.Linear(256, 128),           # Hidden layer 2 (128 neurons)
+            nn.ReLU(),
+            nn.Linear(128, 10)             # Output: 10 clothing categories
+        )
+
+    def forward(self, x):
+        return self.network(x)
+
+model = FashionNet()
+print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
+# Parameters: 235,146</code></pre>
+    </div>
+    <p class="small">nn.Sequential chains layers together / 235K learnable parameters / 10 output classes for Fashion-MNIST</p>
+    <aside class="notes">Here is our neural network. It takes a 28 by 28 grayscale image, flattens it into 784 numbers, passes through two hidden layers with ReLU activation, and outputs 10 numbers representing 10 clothing categories. Dropout randomly disables 30 percent of neurons during training, which prevents the model from memorizing the training data. The model has about 235 thousand parameters. This is tiny by modern standards, but plenty for learning clothing recognition.</aside>
+</section>
+
+<!-- TRAINING LOOP: VISUAL -->
+<section>
+    <h2>The Training Loop</h2>
+    <p class="medium" style="margin-bottom:12px;">Every DNN training follows the <strong>same 4 steps</strong>, repeated many times:</p>
+    <div style="display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:20px;">
+        <div class="flow-box" style="border-color:var(--dnn-color);">
+            <span style="color:var(--dnn-color); font-weight:700;">1. Forward Pass</span><br>
+            <span style="font-size:0.85em; opacity:0.7;">Push data through network</span>
+        </div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-box" style="border-color:var(--g-yellow);">
+            <span style="color:var(--g-yellow); font-weight:700;">2. Compute Loss</span><br>
+            <span style="font-size:0.85em; opacity:0.7;">How wrong are we?</span>
+        </div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-box" style="border-color:var(--emb-color);">
+            <span style="color:var(--emb-color); font-weight:700;">3. Backward Pass</span><br>
+            <span style="font-size:0.85em; opacity:0.7;">Compute gradients</span>
+        </div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-box" style="border-color:var(--pipe-color);">
+            <span style="color:var(--pipe-color); font-weight:700;">4. Update Weights</span><br>
+            <span style="font-size:0.85em; opacity:0.7;">Adjust to reduce error</span>
+        </div>
+    </div>
+    <div class="fragment">
+        <pre><code class="language-python">optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+criterion = nn.CrossEntropyLoss()
+
+for epoch in range(10):
+    for images, labels in train_loader:
+        outputs = model(images)           # 1. Forward
+        loss = criterion(outputs, labels)  # 2. Loss
+        optimizer.zero_grad()             # Clear old gradients
+        loss.backward()                   # 3. Backward (autograd!)
+        optimizer.step()                  # 4. Update weights</code></pre>
+    </div>
+    <p class="small fragment">This exact loop is used for everything from a 3-layer MLP to GPT-4. Only scale changes.</p>
+    <aside class="notes">This is the heart of deep learning. Step one: push your data through the network to get predictions. Step two: compare predictions to the real labels using a loss function, which gives you a single number measuring how wrong the model is. Step three: backpropagation, where PyTorch automatically computes how each weight contributed to the error. Step four: the optimizer adjusts all weights slightly to reduce the error. Repeat thousands of times. This same loop is used to train every deep learning model you have heard of.</aside>
+</section>
+
+<!-- TRAINING: KEY DECISIONS -->
+<section>
+    <h2>Key Decisions When Training</h2>
+    <div style="display:flex; gap:10px; justify-content:center;">
+        <div class="card card-w card-dnn">
+            <h4 class="dnn-color">Activation</h4>
+            <p><code>ReLU</code> &mdash; default for hidden layers<br><code>Sigmoid</code> &mdash; binary output<br><code>Softmax</code> &mdash; multi-class probabilities<br><br><em>Rule: ReLU for hidden,<br>match output to task.</em></p>
+        </div>
+        <div class="card card-w card-dnn">
+            <h4 class="dnn-color">Loss Function</h4>
+            <p><code>CrossEntropyLoss</code> &mdash; classification<br><code>MSELoss</code> &mdash; regression<br><code>BCELoss</code> &mdash; binary tasks<br><br><em>Must match your task.<br>Wrong loss = wrong learning.</em></p>
+        </div>
+        <div class="card card-w card-dnn">
+            <h4 class="dnn-color">Optimizer</h4>
+            <p><code>Adam</code> &mdash; adaptive, great default<br><code>SGD</code> &mdash; simpler, needs tuning<br><code>AdamW</code> &mdash; Adam + weight decay<br><br><em>Start with Adam(lr=1e-3).<br>Tune only if needed.</em></p>
+        </div>
+    </div>
+    <aside class="notes">Three decisions you make for every training run. Activation functions: ReLU is almost always correct for hidden layers. Loss function: must match your problem type. CrossEntropyLoss for multi-class classification, which is what we use with Fashion-MNIST. Optimizer: Adam is the safe default. It adapts the learning rate automatically. These are the practical choices that turn theory into working code.</aside>
+</section>
+
+<!-- EVALUATION -->
+<section>
+    <h2>Evaluating Your Model</h2>
+    <div class="feature-box">
+        <pre><code class="language-python"># Switch to evaluation mode (disables Dropout)
+model.eval()
+correct, total = 0, 0
+
+with torch.no_grad():           # No gradient tracking needed
+    for images, labels in test_loader:
+        outputs = model(images)
+        _, predicted = outputs.max(1)  # Get predicted class
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+accuracy = correct / total
+print(f"Test Accuracy: {accuracy:.1%}")  # e.g., 89.3%
+
+model.train()  # Switch back for further training</code></pre>
+    </div>
+    <p class="small"><code>model.eval()</code> disables Dropout and BatchNorm / <code>torch.no_grad()</code> saves memory / Always test on unseen data!</p>
+    <aside class="notes">After training, you need to evaluate on data the model has never seen. Two critical details: model.eval puts the network in evaluation mode, which disables dropout and changes batch normalization behavior. torch.no_grad tells PyTorch not to track gradients, saving memory. A common mistake is forgetting model.eval, which gives you incorrect accuracy numbers.</aside>
+</section>
+
+<!-- DEMO -->
+<section>
+    <h2>Demo: Training a DNN in Antigravity</h2>
+    <div class="feature-box" style="text-align:center;">
+        <p style="font-size:1.5em;">&#x2328;&#xFE0F; LIVE DEMO</p>
+        <p class="medium" style="margin-top:15px;">
+            <span class="step-num">1</span> New file <code>train_fashion.py</code> in Editor<br>
+            <span class="step-num">2</span> Type <code>import torch</code> &rarr; <kbd>Tab</kbd> for boilerplate<br>
+            <span class="step-num">3</span> <kbd>Cmd+I</kbd> &rarr; "Define a 3-layer MLP for Fashion-MNIST"<br>
+            <span class="step-num">4</span> Chat: "Add training loop with progress bars"<br>
+            <span class="step-num">5</span> Run and watch training in the terminal
+        </p>
+    </div>
+    <p class="small">Participants: follow along on your own machine!</p>
+    <aside class="notes">Demo time. I will create a new file, use the editor's tab completion for PyTorch imports, use inline generation to create the model class, then ask the chat to add a training loop with progress tracking. We run it and watch the loss decrease epoch by epoch. This shows the supervised workflow: you lead, the editor assists.</aside>
+</section>
+
+<!-- EXERCISE 1 -->
+<section>
+    <h2>Exercise 1: <span class="dnn-color">Train a DNN</span></h2>
+    <pre><code class="language-python"># In Antigravity Editor, build a complete training pipeline!
+# Use Tab / Cmd+I / Chat for assistance.
+
+import torch
+import torch.nn as nn
+from torchvision import datasets, transforms
+
+# 1. Load Fashion-MNIST (10 clothing categories)
+# 2. Define a feedforward neural network
+# 3. Choose loss function + optimizer
+# 4. Write the training loop (5 epochs)
+# 5. Evaluate on test set
+# 6. Plot: training loss curve + sample predictions
+
+# BONUS: Try changing architecture (add layers, change sizes)
+#        and observe how it affects accuracy!</code></pre>
+    <p class="small">Full instructions: <code>exercises_dnn_embeddings.ipynb</code> / Exercise 1 (20 min)</p>
+    <aside class="notes">Your turn. Build the full pipeline using the building blocks from the slides. The Antigravity Editor will help with boilerplate, but make sure you understand every line. Key learning goals: the training loop pattern, choosing hyperparameters, evaluating the model properly. The bonus challenge lets you experiment with architecture to see how it affects performance.</aside>
+</section>
+
+<!-- HOUR 1 RECAP -->
+<section>
+    <h2>Hour 1 &mdash; Recap</h2>
+    <div style="display:flex; gap:12px; justify-content:center;">
+        <div class="card card-w2 card-dnn">
+            <h4 class="dnn-color">Training a DNN</h4>
+            <p><strong>Neuron</strong> &rarr; inputs * weights + bias + activation<br><strong>nn.Module</strong> &rarr; define architecture<br><strong>Training loop</strong> &rarr; forward, loss, backward, step<br><strong>Evaluation</strong> &rarr; model.eval(), no_grad<br><br>You now know the mechanics.</p>
+        </div>
+        <div class="card card-w2 card-dnn">
+            <h4 class="dnn-color">Key Takeaway</h4>
+            <p>The training loop is <strong>universal</strong>.<br>Same 4 steps for any neural network.<br><br>What changes: architecture, data, hyperparameters.<br>What stays the same: the loop.<br><br><em>Master it once, use it forever.</em></p>
+        </div>
+    </div>
+    <p class="small fragment" style="margin-top:15px;">Break (10 min)</p>
+    <aside class="notes">Let's recap Hour 1. You now understand what a neuron is, how layers are stacked into a network, and the four-step training loop that is universal across all of deep learning. The key insight is that this loop is always the same. Whether you train a small Fashion-MNIST classifier or a model with billions of parameters, the structure is identical. Take a 10-minute break and we will dive into embeddings.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- HOUR 2: EMBEDDINGS + CHUNKING -->
+<!-- ============================== -->
+<section data-background="linear-gradient(135deg, #0d1117 0%, #1a1040 100%)">
+    <div class="hour-bar"><div class="hour-pip"></div><div class="hour-pip active"></div><div class="hour-pip"></div></div>
+    <h1>Hour 2</h1>
+    <h2>&#x1F9EC; <span style="color:var(--emb-color);">Embeddings + Chunking</span></h2>
+    <p class="medium">LangChain + <span class="glow-purple">ChromaDB</span> + Vector Search</p>
+    <aside class="notes">Welcome back. Hour 2 is about a completely different approach to ML. Instead of training a model from scratch, we leverage pre-trained models to convert text into numerical representations called embeddings. We will also learn how to properly chunk documents before embedding them, and build a vector database for semantic search.</aside>
+</section>
+
+<!-- WHAT ARE EMBEDDINGS -->
+<section>
+    <h2>What Are <span class="emb-color">Embeddings</span>?</h2>
+    <div class="feature-box">
+        <div class="two-col">
+            <div>
+                <h3 style="color:var(--emb-color);">GPS Coordinates for Meaning</h3>
+                <p class="medium">
+                    Just as GPS coordinates represent a <strong>location</strong> in physical space...<br><br>
+                    Embeddings represent the <strong>meaning</strong> of text in mathematical space.<br><br>
+                    <strong>Similar meanings</strong> &rarr; <strong>nearby coordinates</strong>.<br>
+                    <strong>Different meanings</strong> &rarr; <strong>far apart</strong>.
+                </p>
+            </div>
+            <div style="text-align:center;">
+                <p class="medium" style="margin-bottom:10px;">Text &rarr; Vector (numbers)</p>
+                <div style="font-size:0.6em; text-align:left;">
+                    <code>"A happy dog"</code><br>&rarr; <code>[0.23, -0.41, 0.87, ...]</code><br><br>
+                    <code>"A joyful puppy"</code><br>&rarr; <code>[0.25, -0.39, 0.84, ...]</code> <span style="color:var(--pipe-color);">&#x2713; close!</span><br><br>
+                    <code>"Quantum physics"</code><br>&rarr; <code>[-0.71, 0.52, -0.13, ...]</code> <span style="color:var(--dnn-color);">&#x2717; far</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <aside class="notes">Embeddings are one of the most powerful ideas in modern AI. Think of them as GPS coordinates, but for meaning instead of location. A pre-trained model has learned to convert text into a list of numbers, a vector, such that similar texts get similar numbers. "A happy dog" and "a joyful puppy" have almost the same embedding, even though the words are completely different. "Quantum physics" has a very different embedding because the meaning is unrelated. This enables searching by meaning rather than by keywords.</aside>
+</section>
+
+<!-- CREATING EMBEDDINGS -->
+<section>
+    <h2>Creating Embeddings with <span class="emb-color">LangChain</span></h2>
+    <pre><code class="language-python">from langchain_huggingface import HuggingFaceEmbeddings
+
+# Load a pre-trained embedding model
+embeddings = HuggingFaceEmbeddings(model_name='all-MiniLM-L6-v2')
+
+# Embed a single query
+vector = embeddings.embed_query("How do neural networks learn?")
+print(f"Dimensions: {len(vector)}")  # 384 numbers
+
+# Embed multiple documents at once
+docs = ["Neural networks use backpropagation",
+        "Dogs are friendly animals",
+        "Deep learning requires lots of data"]
+vectors = embeddings.embed_documents(docs)  # list of 3 vectors</code></pre>
+    <p class="small fragment" style="margin-top:10px;"><code>all-MiniLM-L6-v2</code>: 384 dimensions, fast, great for English text / Pre-trained on 1B+ sentence pairs</p>
+    <aside class="notes">LangChain gives us a clean API for working with embedding models. Here we use all-MiniLM-L6-v2, a small but effective model that converts any text into a vector of 384 numbers. It was pre-trained on over a billion sentence pairs, so it has learned rich representations of meaning. You can embed a single query or batch-embed multiple documents. The key point: someone else did the heavy training. We just use the result.</aside>
+</section>
+
+<!-- SIMILARITY -->
+<section>
+    <h2>Measuring <span class="emb-color">Similarity</span></h2>
+    <div class="two-col">
+        <div>
+            <h3 style="color:var(--emb-color);">Cosine Similarity</h3>
+            <p class="medium">
+                Measures the <strong>angle</strong> between two vectors.<br><br>
+                <strong>1.0</strong> = identical meaning<br>
+                <strong>0.0</strong> = unrelated<br>
+                <strong>-1.0</strong> = opposite meaning<br><br>
+                Like comparing the <strong>direction</strong> two arrows point, ignoring length.
+            </p>
+        </div>
+        <div>
+            <pre><code class="language-python">from sklearn.metrics.pairwise \
+    import cosine_similarity
+import numpy as np
+
+texts = [
+    "I love machine learning",
+    "AI and ML are fascinating",
+    "The weather is sunny today"
+]
+vecs = embeddings.embed_documents(texts)
+
+# Similarity matrix
+sim = cosine_similarity(vecs)
+# [1.00, 0.82, 0.13]  <- ML ~ AI
+# [0.82, 1.00, 0.11]  <- AI ~ ML
+# [0.13, 0.11, 1.00]  <- weather ≠ ML</code></pre>
+        </div>
+    </div>
+    <aside class="notes">Once you have embeddings, you can compare them using cosine similarity. It measures the angle between two vectors: 1 means identical direction, 0 means unrelated, minus 1 means opposite. In our example, "I love machine learning" and "AI and ML are fascinating" get a high score of 0.82 even though they share few words. "The weather is sunny today" scores very low against both. This is the foundation of semantic search: find documents whose embeddings are closest to the query's embedding.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- CHUNKING SLIDES -->
+<!-- ============================== -->
+
+<!-- WHY CHUNKING MATTERS -->
+<section>
+    <h2>Why <span class="glow-purple">Chunking</span> Matters</h2>
+    <div class="feature-box">
+        <p class="medium" style="text-align:center; margin-bottom:18px;">Real documents are too long for embedding models. We need to <strong>split them into chunks</strong>.</p>
+        <div class="chunk-visual">
+            <div style="background:var(--agy-surface); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px 18px; font-size:0.5em; min-width:240px; text-align:center; position:relative;">
+                <div style="font-weight:700; color:var(--dnn-color); margin-bottom:6px;">Long Document (5,000 words)</div>
+                <div style="opacity:0.5;">Too large for embedding model<br>(max ~512 tokens)</div>
+            </div>
+            <div class="flow-arrow">&rarr;</div>
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <div class="chunk-block active">Chunk 1 (200 words)</div>
+                <div class="chunk-block active">Chunk 2 (200 words)</div>
+                <div class="chunk-block active">Chunk 3 (200 words)</div>
+                <div class="chunk-block" style="opacity:0.5;">... more chunks</div>
+            </div>
+        </div>
+        <div style="display:flex; gap:20px; justify-content:center; margin-top:15px;">
+            <div style="font-size:0.55em; text-align:center;">
+                <span style="color:var(--pipe-color); font-weight:700;">Smaller chunks</span><br>
+                = more precise retrieval<br>
+                = better search results
+            </div>
+            <div style="font-size:0.55em; text-align:center;">
+                <span style="color:var(--g-yellow); font-weight:700;">Too small</span><br>
+                = lose context<br>
+                = fragments of ideas
+            </div>
+            <div style="font-size:0.55em; text-align:center;">
+                <span style="color:var(--emb-color); font-weight:700;">Sweet spot</span><br>
+                = 200-500 words per chunk<br>
+                = complete thoughts
+            </div>
+        </div>
+    </div>
+    <aside class="notes">Embedding models have a maximum input length, typically around 512 tokens. But real documents, like articles, reports, or textbooks, are much longer. We need to split them into smaller chunks before embedding. This is called chunking. The chunk size matters: smaller chunks give more precise retrieval because each chunk covers a focused topic. But if chunks are too small, they lose context and become fragments. The sweet spot is usually 200 to 500 words per chunk, which captures complete thoughts or paragraphs.</aside>
+</section>
+
+<!-- CHUNKING STRATEGIES -->
+<section>
+    <h2>Chunking <span class="glow-purple">Strategies</span></h2>
+    <div style="display:flex; gap:10px; justify-content:center;">
+        <div class="card" style="width:250px; border-top:3px solid var(--g-yellow);">
+            <h4 class="gc-yellow">Fixed-Size</h4>
+            <p>Split every N characters.<br><br><strong>Pros:</strong> Simple, fast, predictable chunk sizes.<br><br><strong>Cons:</strong> May break mid-sentence or mid-word.<br><br><code style="font-size:0.85em;">text[0:500], text[500:1000]...</code></p>
+        </div>
+        <div class="card" style="width:250px; border-top:3px solid var(--emb-color);">
+            <h4 class="gc-blue">Sentence-Based</h4>
+            <p>Split at sentence boundaries.<br><br><strong>Pros:</strong> Respects meaning, clean breaks.<br><br><strong>Cons:</strong> Variable chunk sizes, may be too small.<br><br><code style="font-size:0.85em;">nltk.sent_tokenize(text)</code></p>
+        </div>
+        <div class="card" style="width:250px; border-top:3px solid var(--agy-purple);">
+            <h4 class="glow-purple">Recursive (LangChain)</h4>
+            <p>Try splitting by paragraphs, then sentences, then words.<br><br><strong>Pros:</strong> Smart, flexible, best quality.<br><br><strong>Cons:</strong> Slightly more complex.<br><br><code style="font-size:0.85em;">RecursiveCharacterTextSplitter</code></p>
+        </div>
+    </div>
+    <aside class="notes">Three main strategies. Fixed-size is the simplest: just chop the text every 500 characters. It is fast but can break a sentence right in the middle, which hurts the quality of embeddings. Sentence-based splitting respects natural boundaries but gives you variable-sized chunks. LangChain's recursive splitter is the smartest: it first tries to split by paragraphs. If a paragraph is still too long, it splits by sentences. If a sentence is too long, it splits by words. This gives you the best quality chunks because it preserves meaning at every level.</aside>
+</section>
+
+<!-- CHUNKING IN CODE -->
+<section>
+    <h2>Chunking with <span class="glow-purple">LangChain</span></h2>
+    <pre><code class="language-python">from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+# The recommended approach: recursive splitting
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=500,       # Max characters per chunk
+    chunk_overlap=50,     # Overlap between chunks (preserve context)
+    separators=["\n\n", "\n", ". ", " ", ""]  # Try these in order
+)
+
+# Split a long document
+document = "..."  # Your long text
+chunks = splitter.split_text(document)
+
+print(f"Document: {len(document)} chars -> {len(chunks)} chunks")
+# Document: 5000 chars -> 12 chunks
+
+# Each chunk preserves complete thoughts
+for i, chunk in enumerate(chunks):
+    print(f"Chunk {i}: {len(chunk)} chars")</code></pre>
+    <p class="small fragment" style="margin-top:8px;">
+        <strong>chunk_overlap</strong>: chunks share some text at boundaries &rarr; prevents losing context between chunks.
+    </p>
+    <aside class="notes">Here is how to use LangChain's recursive splitter in practice. You specify the maximum chunk size and the overlap. The overlap is important: it means consecutive chunks share some text at their boundaries, so you don't lose context. The separators list tells LangChain to first try splitting by double newlines (paragraphs), then single newlines, then periods (sentences), then spaces (words), and only as a last resort by character. This gives you high-quality chunks that respect the document's natural structure.</aside>
+</section>
+
+<!-- CHOOSING A CHUNKING STRATEGY -->
+<section>
+    <h2>Choosing a <span class="glow-purple">Strategy</span></h2>
+    <table class="compare-table">
+        <tr>
+            <th>Strategy</th>
+            <th>Best For</th>
+            <th>Chunk Quality</th>
+            <th>Speed</th>
+        </tr>
+        <tr>
+            <td><strong class="gc-yellow">Fixed-Size</strong></td>
+            <td>Quick prototyping, uniform data</td>
+            <td>Low (breaks sentences)</td>
+            <td>Fastest</td>
+        </tr>
+        <tr>
+            <td><strong class="gc-blue">Sentence-Based</strong></td>
+            <td>Short documents, Q&A data</td>
+            <td>Medium (clean boundaries)</td>
+            <td>Fast</td>
+        </tr>
+        <tr>
+            <td><strong class="glow-purple">Recursive</strong></td>
+            <td>Long documents, articles, reports</td>
+            <td>High (preserves meaning)</td>
+            <td>Fast</td>
+        </tr>
+        <tr>
+            <td><strong class="gc-green">Semantic</strong></td>
+            <td>Research, high-quality RAG</td>
+            <td>Highest (topic-aware)</td>
+            <td>Slower (uses embeddings)</td>
+        </tr>
+    </table>
+    <p class="medium fragment" style="margin-top:15px; text-align:center;">
+        Rule of thumb: <strong>start with Recursive</strong>. Only switch if you have a specific reason.
+    </p>
+    <aside class="notes">This table summarizes when to use each strategy. For most use cases, recursive splitting is the best default. It is fast, produces high-quality chunks, and handles a wide variety of document types. Semantic chunking is the most advanced: it uses embeddings to detect topic boundaries within the text. It gives the highest quality but is slower because it needs to compute embeddings for every potential split point. My recommendation: start with recursive and only move to semantic chunking if your search quality needs improvement.</aside>
+</section>
+
+<!-- CHROMADB VECTOR DATABASE -->
+<section>
+    <h2><span class="glow-purple">ChromaDB</span>: Vector Database</h2>
+    <div class="two-col">
+        <div>
+            <h3 style="color:var(--emb-color);">What is a Vector DB?</h3>
+            <p class="medium">
+                A database optimized for storing and searching <strong>embedding vectors</strong>.<br><br>
+                Traditional DB: <code>WHERE text LIKE '%keyword%'</code><br><br>
+                Vector DB: "Find documents <strong>similar in meaning</strong> to this query."<br><br>
+                <strong>ChromaDB</strong>: open-source, Python-native, simple API.
+            </p>
+        </div>
+        <div>
+            <pre><code class="language-python">from langchain_community.vectorstores \
+    import Chroma
+
+# Store documents (auto-embeds!)
+vectorstore = Chroma.from_texts(
+    texts=chunks,
+    embedding=embeddings
+)
+
+# Semantic search
+results = vectorstore.similarity_search(
+    "How do computers learn?",
+    k=3  # top 3 results
+)
+
+for doc in results:
+    print(doc.page_content[:100])</code></pre>
+        </div>
+    </div>
+    <aside class="notes">ChromaDB is a vector database designed for AI applications. Unlike a traditional database where you search by keywords, a vector database searches by meaning. You store your document chunks along with their embeddings, and then you can query with natural language. ChromaDB finds the chunks whose embeddings are closest to the query's embedding. Through LangChain, embedding is automatic. You just pass your texts and the embedding model, and ChromaDB handles the rest.</aside>
+</section>
+
+<!-- THE FULL PIPELINE -->
+<section>
+    <h2>The Full <span class="emb-color">Pipeline</span></h2>
+    <div class="feature-box" style="text-align:center;">
+        <p class="medium" style="margin-bottom:15px;">From raw document to semantic search in 5 steps:</p>
+        <div class="pipeline-flow">
+            <div class="pipeline-step" style="border-color:var(--g-yellow);">
+                <strong style="color:var(--g-yellow);">Document</strong><br>
+                Raw text input
+            </div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="pipeline-step" style="border-color:var(--agy-purple);">
+                <strong style="color:var(--agy-purple);">Chunks</strong><br>
+                RecursiveTextSplitter
+            </div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="pipeline-step" style="border-color:var(--emb-color);">
+                <strong style="color:var(--emb-color);">Embeddings</strong><br>
+                all-MiniLM-L6-v2
+            </div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="pipeline-step" style="border-color:var(--pipe-color);">
+                <strong style="color:var(--pipe-color);">Vector DB</strong><br>
+                ChromaDB
+            </div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="pipeline-step" style="border-color:var(--dnn-color);">
+                <strong style="color:var(--dnn-color);">Search</strong><br>
+                Semantic query
+            </div>
+        </div>
+        <pre style="margin-top:15px;"><code class="language-python"># The complete pipeline in code:
+splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+chunks = splitter.split_text(long_document)
+
+embeddings = HuggingFaceEmbeddings(model_name='all-MiniLM-L6-v2')
+vectorstore = Chroma.from_texts(texts=chunks, embedding=embeddings)
+
+results = vectorstore.similarity_search("your question here", k=3)</code></pre>
+    </div>
+    <aside class="notes">Here is the complete pipeline from start to finish. You take a raw document, split it into chunks using the recursive text splitter, compute embeddings using a pre-trained model, store everything in ChromaDB, and then search by meaning. This is exactly how RAG systems work, the technology behind tools like ChatGPT's document understanding, Copilot's codebase search, and many other AI applications. And it is just six lines of code.</aside>
+</section>
+
+<!-- CLASSIFICATION WITH EMBEDDINGS -->
+<section>
+    <h2>Embeddings for <span class="emb-color">Classification</span></h2>
+    <div class="two-col">
+        <div>
+            <h3 style="color:var(--emb-color);">Why This Works</h3>
+            <p class="medium">
+                Pre-trained model already <strong>understands language</strong>.<br><br>
+                Embeddings = <strong>rich features for free</strong>.<br><br>
+                Simple classifiers (LogisticRegression) work great on top of good embeddings.<br><br>
+                <em>Like using a dictionary vs. learning a language from scratch.</em>
+            </p>
+        </div>
+        <div>
+            <pre><code class="language-python"># Embed texts -> classify with sklearn
+from sklearn.linear_model import \
+    LogisticRegression
+
+# Get embeddings for train/test
+X_train = embeddings.embed_documents(
+    train_texts
+)
+X_test = embeddings.embed_documents(
+    test_texts
+)
+
+# Train a simple classifier
+clf = LogisticRegression()
+clf.fit(X_train, y_train)
+acc = clf.score(X_test, y_test)
+print(f"Accuracy: {acc:.1%}")
+# Often 85-92% with zero tuning!</code></pre>
+        </div>
+    </div>
+    <aside class="notes">Embeddings are not just for search. You can use them as features for any machine learning task. The pre-trained model has already learned what words and sentences mean, so the embeddings capture rich semantic information. A simple logistic regression on top of these embeddings often achieves 85 to 92 percent accuracy on text classification tasks, with zero hyperparameter tuning. This is the power of transfer learning: someone else trained on billions of examples, and you benefit from that knowledge.</aside>
+</section>
+
+<!-- DEMO: CHROMADB -->
+<section>
+    <h2>Demo: Vector Database in Action</h2>
+    <div class="feature-box" style="text-align:center;">
+        <p style="font-size:1.5em;">&#x1F680; LIVE DEMO</p>
+        <p class="medium" style="margin-top:15px;">
+            <span class="step-num">1</span> Open the <strong>Streamlit app</strong> (link from instructor)<br>
+            <span class="step-num">2</span> Go to <strong>"2. Vector Database (ChromaDB)"</strong><br>
+            <span class="step-num">3</span> Add documents &rarr; search by meaning<br>
+            <span class="step-num">4</span> <strong>Notice:</strong> no keyword matching &mdash; pure semantic search<br>
+            <span class="step-num">5</span> Try different chunking strategies and compare results
+        </p>
+    </div>
+    <p class="small">Traditional: <code>WHERE text LIKE '%keyword%'</code> / Vector DB: "find documents about this topic"</p>
+    <aside class="notes">Demo time. I will open the Streamlit app and show how documents are added to ChromaDB. LangChain computes embeddings automatically. Then I will search with a query that uses completely different words and show that the vector database finds semantically similar documents. This is the foundation of RAG systems. Students will reproduce this in the notebook exercise.</aside>
+</section>
+
+<!-- EXERCISE 2 -->
+<section>
+    <h2>Exercise 2: <span class="emb-color">Embeddings + Chunking + Search</span></h2>
+    <pre><code class="language-python"># Step 1: Create embeddings with LangChain
+from langchain_huggingface import HuggingFaceEmbeddings
+embeddings = HuggingFaceEmbeddings(model_name='all-MiniLM-L6-v2')
+
+# Step 2: Chunk a long document with RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+chunks = RecursiveCharacterTextSplitter(chunk_size=500).split_text(doc)
+
+# Step 3: Store in ChromaDB and search by meaning
+vectorstore = Chroma.from_texts(texts=chunks, embedding=embeddings)
+results = vectorstore.similarity_search("your query", k=3)
+
+# Step 4: Use embeddings for text classification with sklearn
+# Step 5: Compare classifiers + visualize with t-SNE</code></pre>
+    <p class="small">Follow the notebook: <code>exercises_dnn_embeddings.ipynb</code> / Exercise 2 (25 min)</p>
+    <aside class="notes">Follow the notebook step by step. Key sections: chunking a long document with the recursive splitter, storing chunks in ChromaDB, performing semantic search, then using the same embeddings for classification with sklearn. Try different chunk sizes and see how they affect search quality. The Streamlit app provides an interactive companion for exploration.</aside>
+</section>
+
+<!-- HOUR 2 RECAP -->
+<section>
+    <h2>Hour 2 &mdash; Recap</h2>
+    <div style="display:flex; gap:12px; justify-content:center;">
+        <div class="card card-w2 card-emb">
+            <h4 class="emb-color">Embeddings + Chunking</h4>
+            <p>Embeddings = <strong>GPS for meaning</strong><br>Chunking = split documents smartly<br>Recursive splitter = best default<br>Overlap preserves context<br><br><em>Pre-trained models = free knowledge.</em></p>
+        </div>
+        <div class="card card-w2 card-emb">
+            <h4 class="emb-color">LangChain + ChromaDB</h4>
+            <p><strong>LangChain</strong> = clean embedding API<br><strong>ChromaDB</strong> = vector database<br><br>Chunk &rarr; embed &rarr; store &rarr; search<br>Foundation of <strong>RAG</strong> systems<br><br><em>= Modern AI search pipeline.</em></p>
+        </div>
+    </div>
+    <p class="small fragment" style="margin-top:15px;">Break (10 min)</p>
+    <aside class="notes">Let's recap Hour 2. Embeddings are like GPS coordinates for meaning. Chunking is essential for handling real documents. The recursive text splitter is the best default choice. ChromaDB stores embeddings and enables semantic search. Together, LangChain and ChromaDB form the foundation of RAG systems, which power modern AI applications like ChatGPT's document understanding. Take a 10-minute break.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- HOUR 3: COMPARISON + DECISION -->
+<!-- ============================== -->
+<section data-background="linear-gradient(135deg, #1a1040 0%, #0d1117 50%, #1a1040 100%)">
+    <div class="hour-bar"><div class="hour-pip"></div><div class="hour-pip"></div><div class="hour-pip active"></div></div>
+    <h1>Hour 3</h1>
+    <h2>&#x1F52C; <span class="glow-cyan">DNN vs Embeddings</span></h2>
+    <p class="medium">Comparison / Decision Guide / <span class="pipe-color">Transfer Learning</span></p>
+    <aside class="notes">Welcome to the final hour. Now that you have built both a DNN from scratch and an embedding pipeline, the natural question is: when should you use which? Hour 3 answers that question with a direct comparison, a decision guide, and a look at the transfer learning spectrum.</aside>
+</section>
+
+<!-- DNN vs EMBEDDINGS COMPARISON -->
+<section>
+    <h2>DNN vs Embeddings: <span class="glow-cyan">Side by Side</span></h2>
+    <table class="compare-table">
+        <tr>
+            <th></th>
+            <th><span class="dnn-color">DNN from Scratch</span></th>
+            <th><span class="emb-color">Embeddings + ML</span></th>
+        </tr>
+        <tr>
+            <td><strong>Training time</strong></td>
+            <td>Minutes to hours (GPU)</td>
+            <td>Seconds to minutes (CPU)</td>
+        </tr>
+        <tr>
+            <td><strong>Data needed</strong></td>
+            <td>10,000+ labeled examples</td>
+            <td>100-5,000 examples</td>
+        </tr>
+        <tr>
+            <td><strong>Flexibility</strong></td>
+            <td>Full control over architecture</td>
+            <td>Limited to pre-trained features</td>
+        </tr>
+        <tr>
+            <td><strong>Performance</strong></td>
+            <td>Can be highest with enough data</td>
+            <td>Often surprisingly competitive</td>
+        </tr>
+        <tr>
+            <td><strong>Expertise needed</strong></td>
+            <td>Deep learning knowledge</td>
+            <td>Basic ML + API skills</td>
+        </tr>
+        <tr>
+            <td><strong>Best for</strong></td>
+            <td>Novel tasks, massive datasets</td>
+            <td>Text tasks, rapid prototyping</td>
+        </tr>
+    </table>
+    <p class="small fragment" style="margin-top:12px;">Key insight: embeddings + simple ML is often <strong>90% as good</strong> in <strong>10% of the time</strong>.</p>
+    <aside class="notes">Here is the direct comparison. Training a DNN gives you full control but requires more data, more compute, and more expertise. Embeddings plus a simple classifier gives you competitive results much faster, especially for text tasks. The key insight is that embeddings plus simple ML often gets you 90 percent of the performance in 10 percent of the time. Start with embeddings. Only move to a custom DNN if you have a specific reason: novel data types, massive datasets, or the need to squeeze out every last bit of accuracy.</aside>
+</section>
+
+<!-- DECISION GUIDE -->
+<section>
+    <h2>Decision Guide: <span class="glow-cyan">What Should You Use?</span></h2>
+    <div class="feature-box">
+        <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap;">
+            <div class="card" style="width:220px; border-top:3px solid var(--emb-color);">
+                <h4 class="emb-color">Start Here</h4>
+                <p><strong>Embeddings + sklearn</strong><br><br>Fast baseline.<br>Works with little data.<br>Often good enough.<br><br><em>"Can I solve this with pre-trained embeddings?"</em></p>
+            </div>
+            <div style="display:flex; align-items:center;"><span class="flow-arrow" style="font-size:1.5em;">&rarr;</span></div>
+            <div class="card" style="width:220px; border-top:3px solid var(--agy-purple);">
+                <h4 class="glow-purple">If Not Enough</h4>
+                <p><strong>Fine-tune pre-trained</strong><br><br>Adjust model to your data.<br>Medium effort, medium data.<br>Best of both worlds.<br><br><em>"Can I adapt an existing model?"</em></p>
+            </div>
+            <div style="display:flex; align-items:center;"><span class="flow-arrow" style="font-size:1.5em;">&rarr;</span></div>
+            <div class="card" style="width:220px; border-top:3px solid var(--dnn-color);">
+                <h4 class="dnn-color">Last Resort</h4>
+                <p><strong>Train from scratch</strong><br><br>Full control.<br>Needs lots of data + GPU.<br>Maximum flexibility.<br><br><em>"My task is truly novel."</em></p>
+            </div>
+        </div>
+    </div>
+    <p class="small fragment" style="margin-top:10px;">Most real-world problems are solved in the first or second box. Training from scratch is rarer than you think.</p>
+    <aside class="notes">Here is a practical decision framework. Always start with the simplest approach: pre-trained embeddings plus a simple classifier. If that does not give you sufficient accuracy, try fine-tuning a pre-trained model on your specific data. Only train from scratch if you have a truly novel task that no existing model covers, and you have enough data and compute to justify it. In practice, most real-world problems are solved in the first or second box. Training from scratch is much rarer than you might expect.</aside>
+</section>
+
+<!-- TRANSFER LEARNING SPECTRUM -->
+<section>
+    <h2>The Transfer Learning Spectrum</h2>
+    <div class="feature-box">
+        <div style="display:flex; justify-content:center; align-items:flex-start; gap:6px;">
+            <div style="text-align:center; width:200px;">
+                <div style="font-size:0.55em; color:var(--dnn-color); font-weight:700;">MORE CONTROL</div>
+                <div style="height:6px; background:linear-gradient(90deg, var(--dnn-color), var(--emb-color)); border-radius:3px; margin:8px 0;"></div>
+            </div>
+            <div style="width:200px;"></div>
+            <div style="text-align:center; width:200px;">
+                <div style="font-size:0.55em; color:var(--emb-color); font-weight:700;">LESS EFFORT</div>
+                <div style="height:6px; background:linear-gradient(90deg, var(--emb-color), var(--pipe-color)); border-radius:3px; margin:8px 0;"></div>
+            </div>
+        </div>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
+            <div class="card" style="width:180px; border-top:3px solid var(--dnn-color);">
+                <h4 class="dnn-color">Train from Scratch</h4>
+                <p>Full control.<br>Needs lots of data.<br>Highest compute.<br><br><em>Hour 1 approach.</em></p>
+            </div>
+            <div class="card" style="width:180px; border-top:3px solid var(--agy-purple);">
+                <h4 class="glow-purple">Fine-tune</h4>
+                <p>Start pre-trained.<br>Adjust to your data.<br>Medium compute.<br><br><em>Best of both worlds.</em></p>
+            </div>
+            <div class="card" style="width:180px; border-top:3px solid var(--emb-color);">
+                <h4 class="emb-color">Feature Extraction</h4>
+                <p>Freeze pre-trained.<br>Only train classifier.<br>Minimal compute.<br><br><em>Hour 2 approach.</em></p>
+            </div>
+        </div>
+    </div>
+    <p class="small fragment" style="margin-top:8px;">Examples: AlphaFold (scratch) / ChatGPT (fine-tuned GPT + RLHF) / Semantic search (feature extraction)</p>
+    <aside class="notes">Transfer learning is a spectrum. On one end, you train from scratch with full control but high cost. On the other, feature extraction uses a frozen pre-trained model with minimal effort. Fine-tuning is the middle ground. AlphaFold is an example of training from scratch for a completely novel task. ChatGPT is fine-tuned: GPT was pre-trained, then adjusted with RLHF. Semantic search is pure feature extraction: embed documents with a frozen model and search. Today you have practiced both ends of this spectrum.</aside>
+</section>
+
+<!-- KEY TAKEAWAYS -->
+<section>
+    <h2>Key Takeaways</h2>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <div class="card card-w2 card-dnn">
+            <h4 class="dnn-color">Training a DNN</h4>
+            <p>Neuron &rarr; layers &rarr; forward &rarr; loss &rarr; backward &rarr; step.<br>The loop is universal. Master it once, use it forever.</p>
+        </div>
+        <div class="card card-w2 card-emb">
+            <h4 class="emb-color">Embeddings Are Superpowers</h4>
+            <p>GPS coordinates for meaning. Pre-trained models give you features for free. Chunk &rarr; embed &rarr; search or classify.</p>
+        </div>
+        <div class="card card-w2 card-purple">
+            <h4 class="glow-purple">Chunking Matters</h4>
+            <p>Right chunks = right answers. Recursive splitting is the best default. Overlap preserves context at boundaries.</p>
+        </div>
+        <div class="card card-w2 card-pipe">
+            <h4 class="pipe-color">Know When to Use What</h4>
+            <p>Start simple (embeddings + ML). Scale up (fine-tune / DNN) only when needed. Speed of iteration wins.</p>
+        </div>
+    </div>
+    <aside class="notes">Four things to remember from today. First: the training loop is universal across all of deep learning. Second: embeddings give you rich features from pre-trained models for free. Third: chunking is a critical step that affects the quality of everything downstream. Fourth: start simple and only scale up complexity when you need to. These principles will serve you well in any ML project.</aside>
+</section>
+
+<!-- RESOURCES -->
+<section>
+    <h2>Resources</h2>
+    <div class="two-col" style="font-size:0.7em;">
+        <div>
+            <h3>Deep Learning</h3>
+            <p><code>pytorch.org/tutorials</code><br>
+            <code>python.langchain.com</code> (LangChain docs)<br>
+            <code>docs.trychroma.com</code> (ChromaDB docs)<br>
+            fast.ai &mdash; Practical Deep Learning<br>
+            Andrej Karpathy &mdash; Neural Networks: Zero to Hero</p>
+        </div>
+        <div>
+            <h3>Tools</h3>
+            <p><code>scikit-learn.org</code><br>
+            <code>huggingface.co</code> (models + datasets)<br>
+            <code>streamlit.io</code> (interactive apps)<br>
+            Google Colab &mdash; free GPU<br>
+            <code>sbert.net</code> (sentence-transformers)</p>
+        </div>
+    </div>
+    <p class="small" style="margin-top:25px;">Exercises: <code>exercises_dnn_embeddings.ipynb</code> / Interactive app: <code>streamlit-app/</code></p>
+    <aside class="notes">Here are resources for further learning. PyTorch tutorials are excellent and comprehensive. LangChain and ChromaDB documentation covers everything we did today in more depth. fast.ai is a fantastic free course if you want to go deeper into practical deep learning. Andrej Karpathy's Zero to Hero series on YouTube is the best video introduction to building neural networks from scratch.</aside>
+</section>
+
+<!-- END -->
+<section data-background="linear-gradient(160deg, #0d1117 0%, #1a1040 50%, #0d1117 100%)">
+    <h1>Thank you!</h1>
+    <p class="medium" style="opacity:0.6; margin-top:20px;">From building neural networks to leveraging embeddings &mdash;<br>now you have the practical toolkit.</p>
+    <p class="small" style="margin-top:40px;">Questions?</p>
+    <aside class="notes">That wraps up Day 2. You have trained a neural network from scratch, learned about embeddings and chunking, built a vector database for semantic search, and now understand when to use which approach. The exercises notebook has additional challenges if you want to keep exploring. Thank you for your attention, and I am happy to take questions.</aside>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/notes/notes.min.js"></script>
+<script>
+    Reveal.initialize({ hash: true, slideNumber: 'c/t', transition: 'slide', backgroundTransition: 'fade', plugins: [RevealHighlight, RevealNotes], width: 1200, height: 700, margin: 0.04 });
+</script>
+</body>
+</html>

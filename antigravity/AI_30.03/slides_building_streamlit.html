@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building an AI Web App with Streamlit</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700;900&display=swap');
+
+        :root {
+            --r-background-color: #0d1117;
+            --r-main-font: 'DM Sans', sans-serif;
+            --r-heading-font: 'DM Sans', sans-serif;
+            --r-code-font: 'JetBrains Mono', monospace;
+            --r-main-color: #c9d1d9;
+            --r-heading-color: #f0f6fc;
+            --r-link-color: #8b5cf6;
+            --g-blue: #4285f4;
+            --g-red: #ea4335;
+            --g-yellow: #fbbc04;
+            --g-green: #34a853;
+            --agy-purple: #8b5cf6;
+            --agy-cyan: #22d3ee;
+            --agy-surface: #161b22;
+            --st-color: #ff4b4b;
+            --deploy-color: #34a853;
+        }
+
+        .reveal { font-family: 'DM Sans', sans-serif; font-size: 30px; }
+        .reveal h1, .reveal h2, .reveal h3 { font-family: 'DM Sans', sans-serif; font-weight: 700; text-transform: none; letter-spacing: -0.03em; }
+        .reveal h1 { font-size: 2.6em; line-height: 1.1; }
+        .reveal h2 { font-size: 1.7em; }
+        .reveal h3 { font-size: 1.2em; color: var(--agy-purple); }
+        .reveal code { font-family: 'JetBrains Mono', monospace; background: rgba(139,92,246,0.12); padding: 2px 8px; border-radius: 6px; font-size: 0.82em; }
+        .reveal pre code { background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; border-left: 4px solid var(--agy-purple); font-size: 0.68em; line-height: 1.5; }
+
+        .gc-blue { color: var(--g-blue); } .gc-red { color: var(--g-red); } .gc-yellow { color: var(--g-yellow); } .gc-green { color: var(--g-green); }
+        .glow-purple { color: var(--agy-purple); text-shadow: 0 0 25px rgba(139,92,246,0.4); }
+        .glow-cyan { color: var(--agy-cyan); text-shadow: 0 0 25px rgba(34,211,238,0.4); }
+        .st-color { color: var(--st-color); }
+
+        .card { background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 22px; margin: 8px; display: inline-block; vertical-align: top; text-align: left; }
+        .card h4 { margin: 0 0 8px 0; font-size: 0.85em; }
+        .card p { font-size: 0.6em; opacity: 0.8; margin: 0; line-height: 1.4; }
+        .card-w { width: 260px; } .card-w2 { width: 340px; } .card-w3 { width: 300px; }
+        .card-purple { border-top: 3px solid var(--agy-purple); }
+        .card-red { border-top: 3px solid var(--st-color); }
+        .card-blue { border-top: 3px solid var(--g-blue); }
+        .card-green { border-top: 3px solid var(--g-green); }
+        .card-yellow { border-top: 3px solid var(--g-yellow); }
+        .card-cyan { border-top: 3px solid var(--agy-cyan); }
+
+        .feature-box { background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(34,211,238,0.06)); border: 1px solid rgba(139,92,246,0.25); border-radius: 16px; padding: 28px; margin: 15px 0; }
+        .two-col { display: flex; gap: 35px; align-items: flex-start; }
+        .two-col > div { flex: 1; text-align: left; }
+
+        .small { font-size: 0.55em; opacity: 0.65; } .medium { font-size: 0.72em; }
+
+        .hour-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
+        .hour-pip { width: 60px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.12); }
+        .hour-pip.active { background: var(--agy-purple); box-shadow: 0 0 12px rgba(139,92,246,0.5); }
+
+        .timeline-row { display: flex; justify-content: center; align-items: flex-start; gap: 16px; margin: 25px 0; }
+        .t-block { text-align: center; width: 200px; }
+        .t-block .t-time { font-size: 0.5em; color: var(--agy-purple); font-weight: 700; }
+        .t-block .t-label { font-size: 0.52em; margin-top: 5px; line-height: 1.4; }
+        .t-arrow { font-size: 1.4em; color: var(--agy-purple); margin-top: 12px; }
+
+        .reveal ul, .reveal ol { display: block; text-align: left; margin-left: 1em; }
+        .reveal li { font-size: 0.75em; margin: 0.4em 0; line-height: 1.4; }
+
+        kbd { display: inline-block; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; padding: 2px 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.8em; }
+        .step-num { display: inline-block; width: 32px; height: 32px; line-height: 32px; border-radius: 50%; background: var(--agy-purple); color: white; text-align: center; font-weight: 700; font-size: 0.7em; margin-right: 8px; }
+
+        .pill { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.55em; font-weight: 600; }
+        .pill-st { background: rgba(255,75,75,0.15); color: var(--st-color); }
+        .pill-blue { background: rgba(66,133,244,0.15); color: var(--g-blue); }
+        .pill-green { background: rgba(52,168,83,0.15); color: var(--g-green); }
+
+        .flow-arrow { display: inline-block; color: var(--agy-purple); font-size: 1.2em; margin: 0 8px; vertical-align: middle; }
+        .flow-box { display: inline-block; background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 16px; font-size: 0.65em; vertical-align: middle; }
+
+        .reveal .slides section { padding: 20px; }
+
+        .pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; margin: 15px 0; }
+        .pipeline-step { background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 16px; font-size: 0.58em; text-align: center; }
+
+        .compare-table { width: 100%; border-collapse: collapse; font-size: 0.55em; margin: 10px 0; }
+        .compare-table th { background: rgba(139,92,246,0.15); color: var(--agy-purple); padding: 10px 14px; text-align: left; font-weight: 700; border-bottom: 2px solid rgba(139,92,246,0.3); }
+        .compare-table td { padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .compare-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+        .widget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.65em; }
+        .widget-item { background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+        .widget-item code { font-size: 0.85em; white-space: nowrap; }
+        .widget-desc { opacity: 0.7; font-size: 0.9em; }
+
+        .vs-block { text-align: center; padding: 16px; border-radius: 12px; flex: 1; }
+        .vs-block.bad { background: rgba(234,67,53,0.08); border: 1px solid rgba(234,67,53,0.2); }
+        .vs-block.good { background: rgba(52,168,83,0.08); border: 1px solid rgba(52,168,83,0.2); }
+        .vs-block.great { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); }
+        .vs-block h4 { margin: 0 0 6px 0; font-size: 0.8em; }
+        .vs-block p { font-size: 0.55em; opacity: 0.8; margin: 4px 0; line-height: 1.3; }
+
+        .chunk-visual { display: flex; gap: 6px; justify-content: center; align-items: stretch; margin: 12px 0; }
+        .chunk-block { background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; font-size: 0.5em; text-align: center; min-width: 80px; }
+        .chunk-block.active { border-color: var(--agy-purple); background: rgba(139,92,246,0.1); }
+
+        .deploy-step { display: flex; align-items: center; gap: 14px; margin: 10px 0; font-size: 0.72em; }
+        .deploy-num { width: 36px; height: 36px; line-height: 36px; border-radius: 50%; background: var(--g-green); color: white; text-align: center; font-weight: 700; font-size: 0.8em; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================== -->
+<!-- SLIDE 1: TITLE -->
+<!-- ============================== -->
+<section data-background="linear-gradient(160deg, #0d1117 0%, #1a1040 50%, #0d1117 100%)">
+    <p style="font-size:0.7em; letter-spacing:0.15em; opacity:0.5; margin-bottom:5px;">HANDS-ON TUTORIAL</p>
+    <h1 style="font-size:2.0em;">
+        Building an AI Web App<br>with <span class="st-color">Streamlit</span>
+    </h1>
+    <p class="medium" style="opacity:0.6; margin-top:15px;">From zero to deployed in one session</p>
+    <p class="medium" style="margin-top:8px;">
+        <span class="st-color">Streamlit</span> +
+        <span class="gc-blue">LangChain</span> +
+        <span class="glow-cyan">ChromaDB</span>
+    </p>
+    <p class="small" style="margin-top:40px;">Prerequisite: Basic Python / Day 2 workshop concepts</p>
+    <aside class="notes">Welcome to this hands-on tutorial. We are going to build a full AI web application using Streamlit, a Python framework that turns data scripts into shareable web apps. By the end of this session, you will have a multi-page app that can explore embeddings, compare chunking strategies, and perform semantic search using a vector database. No web development experience is needed.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 2: WHAT IS STREAMLIT -->
+<!-- ============================== -->
+<section>
+    <h2>What is <span class="st-color">Streamlit</span>?</h2>
+    <p class="medium" style="margin-bottom:20px;">Python &rarr; Web App in minutes. <strong>No HTML, CSS, or JS needed.</strong></p>
+    <div style="display:flex; gap:15px; justify-content:center;">
+        <div class="vs-block bad">
+            <h4 class="gc-red">Flask / Django</h4>
+            <p>100+ lines for a simple app</p>
+            <p>Routes, templates, forms</p>
+            <p>HTML + CSS required</p>
+        </div>
+        <div class="vs-block bad">
+            <h4 class="gc-yellow">React</h4>
+            <p>Learn JavaScript + Node.js</p>
+            <p>Build system, APIs, state</p>
+            <p>Separate frontend + backend</p>
+        </div>
+        <div class="vs-block great">
+            <h4 class="glow-purple">Streamlit</h4>
+            <p><strong>5 lines of Python = interactive web app</strong></p>
+            <p>Just Python. That's it.</p>
+            <p>Auto-refreshes on save</p>
+        </div>
+    </div>
+    <p class="small fragment" style="margin-top:15px;">Used by: Google, Snowflake, Uber, JP Morgan, NASA &mdash; 30M+ downloads</p>
+    <aside class="notes">Streamlit is a game-changer for anyone who knows Python but does not want to learn web development. With Flask or Django, you need to set up routes, write HTML templates, handle forms manually. React means learning a whole new language. Streamlit removes all of that. You write Python, and it generates the web interface for you. It was acquired by Snowflake and has become the standard for data and AI applications. Over 30 million downloads and counting.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 3: WHAT WE'LL BUILD -->
+<!-- ============================== -->
+<section>
+    <h2>What We'll Build</h2>
+    <p class="medium" style="margin-bottom:15px;">A 4-page AI application</p>
+    <div style="display:flex; gap:10px; justify-content:center;">
+        <div class="card card-w card-blue">
+            <h4 class="gc-blue">Embeddings Explorer</h4>
+            <p>Type sentences, see similarity scores, visualize with heatmaps</p>
+        </div>
+        <div class="card card-w card-purple">
+            <h4 class="glow-purple">Chunking Strategies</h4>
+            <p>Compare fixed-size, sentence, and recursive chunking side by side</p>
+        </div>
+        <div class="card card-w card-cyan">
+            <h4 class="glow-cyan">Vector Search</h4>
+            <p>Build a ChromaDB database, query it, see ranked results</p>
+        </div>
+        <div class="card card-w card-green">
+            <h4 class="gc-green">Classification</h4>
+            <p>Classify text using embeddings with a visual confusion matrix</p>
+        </div>
+    </div>
+    <p class="medium fragment" style="margin-top:20px;">All running <strong>locally</strong> in your browser. Then we <strong>deploy</strong> to the cloud.</p>
+    <aside class="notes">Here is the finished product. Four pages, each demonstrating a different AI concept we covered in the workshop. The embeddings explorer lets you type sentences and see how similar they are. The chunking page lets you compare three different strategies. Vector search builds a real database you can query. Classification ties it all together. Each page is self-contained, and we will build them one by one.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 4: PART 1 DIVIDER -->
+<!-- ============================== -->
+<section data-background="linear-gradient(135deg, #1a1040 0%, #0d1117 100%)">
+    <div class="hour-bar"><div class="hour-pip active"></div><div class="hour-pip"></div><div class="hour-pip"></div><div class="hour-pip"></div><div class="hour-pip"></div></div>
+    <h1>Part 1</h1>
+    <h2><span class="st-color">Streamlit Basics</span></h2>
+    <p class="medium">Your first web app in 5 lines of Python</p>
+    <aside class="notes">Let us start with the fundamentals. In this section, you will learn the core Streamlit widgets and patterns. By the end, you will be able to create interactive web interfaces using nothing but Python.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 5: HELLO WORLD -->
+<!-- ============================== -->
+<section>
+    <h2>Hello World</h2>
+    <div class="two-col">
+        <div>
+            <pre><code class="language-python">import streamlit as st
+
+st.title("Hello World!")
+name = st.text_input("Your name?")
+if name:
+    st.write(f"Hi {name}!")</code></pre>
+            <p class="small" style="margin-top:12px;">Run with: <code>streamlit run app.py</code></p>
+        </div>
+        <div>
+            <div class="feature-box" style="text-align:center;">
+                <p class="medium" style="margin:0; font-weight:600;">That's a COMPLETE web app.</p>
+                <p class="medium" style="margin:10px 0 0 0; opacity:0.7;">
+                    No server setup.<br>
+                    No routes.<br>
+                    No templates.<br>
+                    No HTML.
+                </p>
+                <p class="medium fragment" style="margin:15px 0 0 0; color:var(--st-color); font-weight:700;">
+                    Just. Python.
+                </p>
+            </div>
+        </div>
+    </div>
+    <aside class="notes">Here it is. Four lines of real code and you have a web app with a title, a text input, and dynamic output. When you run streamlit run app dot py, it opens a browser, shows the title and the input. You type your name and it greets you. The key insight: Streamlit re-runs your script from top to bottom every time something changes. That is the whole execution model. Simple but powerful.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 6: KEY WIDGETS -->
+<!-- ============================== -->
+<section>
+    <h2>Key Widgets</h2>
+    <div class="widget-grid">
+        <div class="widget-item">
+            <code>st.text_input()</code>
+            <span class="widget-desc">Text box &mdash; single line</span>
+        </div>
+        <div class="widget-item">
+            <code>st.text_area()</code>
+            <span class="widget-desc">Multi-line text input</span>
+        </div>
+        <div class="widget-item">
+            <code>st.slider()</code>
+            <span class="widget-desc">Numeric slider with range</span>
+        </div>
+        <div class="widget-item">
+            <code>st.selectbox()</code>
+            <span class="widget-desc">Dropdown menu</span>
+        </div>
+        <div class="widget-item">
+            <code>st.button()</code>
+            <span class="widget-desc">Clickable button</span>
+        </div>
+        <div class="widget-item">
+            <code>st.checkbox()</code>
+            <span class="widget-desc">Toggle on/off</span>
+        </div>
+        <div class="widget-item">
+            <code>st.file_uploader()</code>
+            <span class="widget-desc">Upload files</span>
+        </div>
+        <div class="widget-item">
+            <code>st.number_input()</code>
+            <span class="widget-desc">Numeric input with +/-</span>
+        </div>
+    </div>
+    <p class="medium fragment" style="margin-top:18px;">Every widget <strong>returns its current value</strong>. Use it like a variable.</p>
+    <pre class="fragment"><code class="language-python">age = st.slider("Your age", 0, 100, 25)   # returns integer
+st.write(f"You are {age} years old")</code></pre>
+    <aside class="notes">Here are the most important widgets. Each one is a single function call that both renders the widget and returns its value. The slider returns a number. The text input returns a string. The checkbox returns true or false. You just assign the result to a variable and use it in your logic. No event handlers, no callbacks, no state management. The variable always holds the current value.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 7: LAYOUT -->
+<!-- ============================== -->
+<section>
+    <h2>Layout</h2>
+    <div class="two-col">
+        <div>
+            <h3>Code</h3>
+            <pre><code class="language-python"># Columns
+col1, col2 = st.columns(2)
+with col1:
+    st.write("Left side")
+with col2:
+    st.write("Right side")
+
+# Sidebar
+with st.sidebar:
+    st.selectbox("Page", ["Home", "About"])
+
+# Tabs
+tab1, tab2 = st.tabs(["Data", "Chart"])
+with tab1:
+    st.dataframe(df)
+
+# Expander
+with st.expander("Details"):
+    st.write("Hidden content here")</code></pre>
+        </div>
+        <div>
+            <h3>Result</h3>
+            <div class="card card-purple" style="width:100%; box-sizing:border-box;">
+                <h4><code>st.columns()</code></h4>
+                <p>Split into side-by-side columns</p>
+            </div>
+            <div class="card card-blue" style="width:100%; box-sizing:border-box;">
+                <h4><code>st.sidebar</code></h4>
+                <p>Persistent left panel for navigation</p>
+            </div>
+            <div class="card card-green" style="width:100%; box-sizing:border-box;">
+                <h4><code>st.tabs()</code></h4>
+                <p>Tabbed content sections</p>
+            </div>
+            <div class="card card-yellow" style="width:100%; box-sizing:border-box;">
+                <h4><code>st.expander()</code></h4>
+                <p>Collapsible sections for details</p>
+            </div>
+        </div>
+    </div>
+    <aside class="notes">Streamlit gives you four main layout tools. Columns split the page horizontally, perfect for showing code and output side by side. The sidebar is a persistent left panel, great for navigation or settings. Tabs let you organize related content. Expanders hide details that users can reveal on click. All of these use Python context managers with the with keyword, which keeps the code clean and readable.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 8: DISPLAY -->
+<!-- ============================== -->
+<section>
+    <h2>Display &amp; Feedback</h2>
+    <div class="two-col">
+        <div>
+            <pre><code class="language-python"># Text output
+st.write("Auto-formats anything")
+st.markdown("**Bold** and `code`")
+st.title("Big title")
+st.header("Section header")
+
+# Metrics
+st.metric("Accuracy", "94.2%", "+2.1%")
+
+# Status messages
+st.success("Model loaded!")
+st.info("Processing...")
+st.warning("Low confidence")
+st.error("Connection failed")
+
+# Progress
+bar = st.progress(0)
+for i in range(100):
+    bar.progress(i + 1)</code></pre>
+        </div>
+        <div>
+            <div class="feature-box">
+                <p class="medium" style="margin:0;"><code>st.write()</code> is the Swiss army knife:</p>
+                <ul>
+                    <li>String &rarr; text</li>
+                    <li>DataFrame &rarr; table</li>
+                    <li>Dict &rarr; JSON</li>
+                    <li>Matplotlib fig &rarr; chart</li>
+                    <li>Anything &rarr; auto-detected</li>
+                </ul>
+                <p class="medium fragment" style="margin-top:14px; color:var(--agy-purple);">When in doubt, use <code>st.write()</code></p>
+            </div>
+        </div>
+    </div>
+    <aside class="notes">Streamlit has rich display functions. The star is st.write, which auto-detects what you pass it and renders it appropriately. Pass a string, it shows text. Pass a DataFrame, it shows a table. Pass a chart, it renders the chart. The metric function is great for showing KPIs with delta indicators. Status messages give you colored callouts for success, info, warning, and error. The progress bar is perfect for showing loading states during long computations.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 9: CHARTS -->
+<!-- ============================== -->
+<section>
+    <h2>Charts &amp; Visualization</h2>
+    <div class="two-col">
+        <div>
+            <h3>Quick Charts</h3>
+            <pre><code class="language-python"># Built-in (fast, simple)
+st.bar_chart(data)
+st.line_chart(data)
+st.area_chart(data)
+st.scatter_chart(data)</code></pre>
+            <p class="small" style="margin-top:8px;">Pass a DataFrame and Streamlit handles everything.</p>
+        </div>
+        <div>
+            <h3>Interactive Charts</h3>
+            <pre><code class="language-python"># Plotly (rich, interactive)
+import plotly.express as px
+
+fig = px.scatter(df, x="x", y="y",
+                 color="label")
+st.plotly_chart(fig,
+                use_container_width=True)
+
+# Also supports:
+# st.altair_chart()
+# st.pyplot()  (Matplotlib)</code></pre>
+        </div>
+    </div>
+    <div class="feature-box fragment" style="text-align:center;">
+        <p class="medium" style="margin:0;"><span class="gc-blue">Built-in</span> for quick exploration &nbsp;|&nbsp; <span class="glow-purple">Plotly</span> for interactive dashboards &nbsp;|&nbsp; <span class="gc-green">Matplotlib</span> for publication figures</p>
+    </div>
+    <aside class="notes">For visualization, you have two paths. The built-in charts like st.bar_chart and st.line_chart are one-liners: just pass a DataFrame. They are great for quick exploration. For richer, interactive charts, use Plotly. Plotly gives you hover tooltips, zoom, pan, and export. We will use Plotly for the similarity heatmap in our embeddings page. Matplotlib is also supported if you need fine-grained control for publication-quality figures.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 10: PART 2 DIVIDER -->
+<!-- ============================== -->
+<section data-background="linear-gradient(135deg, #1a1040 0%, #0d1117 100%)">
+    <div class="hour-bar"><div class="hour-pip active"></div><div class="hour-pip active"></div><div class="hour-pip"></div><div class="hour-pip"></div><div class="hour-pip"></div></div>
+    <h1>Part 2</h1>
+    <h2><span class="gc-blue">Embeddings Page</span></h2>
+    <p class="medium">Loading models, computing similarity, interactive heatmaps</p>
+    <aside class="notes">Now we build the first real page of our app. The embeddings explorer lets users type sentences and see how similar they are to each other, visualized as an interactive heatmap.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 11: CACHING -->
+<!-- ============================== -->
+<section>
+    <h2>Caching with <code>@st.cache_resource</code></h2>
+    <div class="two-col">
+        <div>
+            <pre><code class="language-python">@st.cache_resource
+def load_model():
+    from langchain_huggingface import (
+        HuggingFaceEmbeddings
+    )
+    return HuggingFaceEmbeddings(
+        model_name="all-MiniLM-L6-v2"
+    )
+
+# First call: loads model (~3 sec)
+model = load_model()
+
+# Every call after: instant!
+model = load_model()  # cached</code></pre>
+        </div>
+        <div>
+            <div class="feature-box">
+                <h3 style="margin-top:0;">Why caching matters</h3>
+                <p class="medium">The model is <strong>~80MB</strong>.</p>
+                <p class="medium" style="margin-top:8px;">Without caching: reloads <span class="gc-red">every single interaction</span>.</p>
+                <p class="medium" style="margin-top:8px;">With caching: loads <span class="gc-green">once</span>, reuses forever.</p>
+                <p class="medium" style="margin-top:14px; opacity:0.6;">
+                    <code>@st.cache_resource</code> &mdash; for models, DB connections<br>
+                    <code>@st.cache_data</code> &mdash; for DataFrames, API results
+                </p>
+            </div>
+        </div>
+    </div>
+    <aside class="notes">This is possibly the most important Streamlit concept. Remember, Streamlit reruns your entire script on every interaction. If you load an 80MB model at the top of your script, it would reload every time someone moves a slider. The cache resource decorator tells Streamlit to load it once and reuse the same object. There are two caching decorators: cache_resource for heavy objects like models and database connections, and cache_data for serializable data like DataFrames and API results. Always cache your model loading.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 12: EMBEDDINGS PAGE FLOW -->
+<!-- ============================== -->
+<section>
+    <h2>Embeddings Page Flow</h2>
+    <div class="pipeline-flow">
+        <div class="pipeline-step" style="border-color:var(--g-blue);"><strong>User types texts</strong><br><code>st.text_area()</code></div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="pipeline-step" style="border-color:var(--agy-purple);"><strong>Click button</strong><br><code>st.button()</code></div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="pipeline-step" style="border-color:var(--agy-cyan);"><strong>Compute embeddings</strong><br><code>model.embed()</code></div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="pipeline-step" style="border-color:var(--g-green);"><strong>Show results</strong><br><code>st.plotly_chart()</code></div>
+    </div>
+    <pre><code class="language-python">texts = st.text_area("Enter texts (one per line)",
+    "The cat sat on the mat\nThe dog played in the park\nFelines rest on rugs")
+
+if st.button("Compute Embeddings"):
+    lines = [t.strip() for t in texts.split("\n") if t.strip()]
+    embeddings = model.embed_documents(lines)
+
+    # Compute cosine similarity matrix
+    from sklearn.metrics.pairwise import cosine_similarity
+    sim_matrix = cosine_similarity(embeddings)
+
+    st.success(f"Computed {len(lines)} embeddings ({len(embeddings[0])}D each)")</code></pre>
+    <aside class="notes">Here is the core logic for the embeddings page. The user types sentences into a text area, one per line. When they click the button, we split the text into lines, compute embeddings for each one using the cached model, and then calculate the cosine similarity matrix. The key pattern here is the button guard: the code inside the if block only runs when the user clicks. This prevents expensive computations from running on every keystroke.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 13: SIMILARITY HEATMAP -->
+<!-- ============================== -->
+<section>
+    <h2>Similarity Heatmap</h2>
+    <div class="two-col">
+        <div>
+            <pre><code class="language-python">import plotly.express as px
+
+fig = px.imshow(
+    sim_matrix,
+    x=short_labels,
+    y=short_labels,
+    color_continuous_scale="Viridis",
+    aspect="auto",
+    text_auto=".2f"
+)
+
+fig.update_layout(
+    title="Cosine Similarity",
+    template="plotly_dark",
+    height=500
+)
+
+st.plotly_chart(fig,
+    use_container_width=True)</code></pre>
+        </div>
+        <div>
+            <div class="feature-box" style="text-align:center;">
+                <p class="medium" style="font-weight:600; margin:0;">Interactive Heatmap</p>
+                <p class="medium" style="margin:10px 0; opacity:0.7;">Hover to see exact similarity scores</p>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:4px; margin:15px 0;">
+                    <div style="background:#440154; padding:12px; border-radius:6px; font-size:0.5em;">0.31</div>
+                    <div style="background:#31688e; padding:12px; border-radius:6px; font-size:0.5em;">0.58</div>
+                    <div style="background:#fde725; padding:12px; border-radius:6px; font-size:0.5em; color:#000;">1.00</div>
+                    <div style="background:#31688e; padding:12px; border-radius:6px; font-size:0.5em;">0.58</div>
+                    <div style="background:#fde725; padding:12px; border-radius:6px; font-size:0.5em; color:#000;">1.00</div>
+                    <div style="background:#31688e; padding:12px; border-radius:6px; font-size:0.5em;">0.52</div>
+                    <div style="background:#fde725; padding:12px; border-radius:6px; font-size:0.5em; color:#000;">1.00</div>
+                    <div style="background:#31688e; padding:12px; border-radius:6px; font-size:0.5em;">0.52</div>
+                    <div style="background:#440154; padding:12px; border-radius:6px; font-size:0.5em;">0.37</div>
+                </div>
+                <p class="small">Viridis color scale: dark = dissimilar, bright = similar</p>
+            </div>
+        </div>
+    </div>
+    <aside class="notes">The heatmap is the hero visualization of this page. Plotly express dot imshow takes a 2D matrix and renders it as a color-coded grid. We use the Viridis color scale where dark purple means low similarity and bright yellow means high similarity. The diagonal is always 1.0 because every text is identical to itself. The text_auto parameter shows the actual numbers on each cell. With plotly_dark template, it matches our app's dark theme perfectly.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 14: INTERACTIVE EXPLORATION -->
+<!-- ============================== -->
+<section>
+    <h2>Interactive Exploration</h2>
+    <pre><code class="language-python"># Let users explore with their own texts
+col1, col2 = st.columns(2)
+with col1:
+    text_a = st.text_input("Text A", "Machine learning is fascinating")
+with col2:
+    text_b = st.text_input("Text B", "AI is really interesting")
+
+if text_a and text_b:
+    emb_a = model.embed_query(text_a)
+    emb_b = model.embed_query(text_b)
+    similarity = cosine_similarity([emb_a], [emb_b])[0][0]
+
+    # Visual similarity bar
+    st.metric("Cosine Similarity", f"{similarity:.4f}")
+    st.progress(float(similarity))
+
+    if similarity > 0.8:
+        st.success("Very similar meaning!")
+    elif similarity > 0.5:
+        st.info("Somewhat related")
+    else:
+        st.warning("Different topics")</code></pre>
+    <p class="small fragment">Try: "The cat sat on the mat" vs "A feline rested on the rug" &rarr; ~0.78 similarity</p>
+    <aside class="notes">Beyond the matrix view, we give users a pairwise comparison tool. Two text inputs side by side, and we show the similarity score with a metric widget and a progress bar. The conditional coloring provides instant feedback: green for high similarity, blue for moderate, orange for low. This is where students have their aha moment, seeing that semantically similar sentences have high scores even when they share no words in common.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 15: PART 3 DIVIDER -->
+<!-- ============================== -->
+<section data-background="linear-gradient(135deg, #1a1040 0%, #0d1117 100%)">
+    <div class="hour-bar"><div class="hour-pip active"></div><div class="hour-pip active"></div><div class="hour-pip active"></div><div class="hour-pip"></div><div class="hour-pip"></div></div>
+    <h1>Part 3</h1>
+    <h2><span class="glow-purple">Chunking Page</span></h2>
+    <p class="medium">Three strategies, interactive comparison, visual results</p>
+    <aside class="notes">Now we build the chunking strategies page. This is where students see how a long document gets split into pieces for embedding. We will implement three different strategies and let users compare them side by side.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 16: WHY CHUNKING -->
+<!-- ============================== -->
+<section>
+    <h2>Why <span class="glow-purple">Chunking</span>?</h2>
+    <p class="medium" style="margin-bottom:15px;">Documents are too long for embedding models. We need to split them into pieces.</p>
+    <div class="pipeline-flow">
+        <div class="pipeline-step" style="border-color:var(--g-red); min-width:120px;">
+            <strong style="font-size:1.1em;">Long Document</strong><br>
+            <span style="font-size:0.85em; opacity:0.7;">5,000+ words</span>
+        </div>
+        <span class="flow-arrow" style="font-size:1.4em;">&#x2702;</span>
+        <div class="pipeline-step" style="border-color:var(--agy-purple);">
+            <strong>Chunk 1</strong><br><span style="opacity:0.7;">~200 words</span>
+        </div>
+        <div class="pipeline-step" style="border-color:var(--agy-purple);">
+            <strong>Chunk 2</strong><br><span style="opacity:0.7;">~200 words</span>
+        </div>
+        <div class="pipeline-step" style="border-color:var(--agy-purple);">
+            <strong>Chunk 3</strong><br><span style="opacity:0.7;">~200 words</span>
+        </div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="pipeline-step" style="border-color:var(--g-blue);">
+            <strong>Embed</strong><br><span style="opacity:0.7;">each chunk</span>
+        </div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="pipeline-step" style="border-color:var(--g-green);">
+            <strong>Vectors</strong><br><span style="opacity:0.7;">searchable</span>
+        </div>
+    </div>
+    <div class="feature-box fragment" style="text-align:center;">
+        <p class="medium" style="margin:0;">The question: <strong>where do you cut?</strong></p>
+        <p class="medium" style="margin:6px 0 0 0; opacity:0.7;">Cut badly &rarr; lose meaning. Cut well &rarr; better search results.</p>
+    </div>
+    <aside class="notes">Embedding models have a maximum input length, typically 256 or 512 tokens. A research paper or book chapter is much longer than that. So we need to split documents into chunks. But here is the key insight: where you cut matters enormously. If you cut in the middle of a sentence or an idea, the embedding of that chunk will be noisy and inaccurate. Good chunking preserves semantic boundaries. This directly affects search quality downstream.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 17: THREE STRATEGIES -->
+<!-- ============================== -->
+<section>
+    <h2>Three Strategies</h2>
+    <div style="display:flex; gap:12px; justify-content:center;">
+        <div class="card card-w3 card-red">
+            <h4 class="gc-red">Fixed-Size</h4>
+            <p style="font-size:0.55em; line-height:1.5;">
+                Split every N characters<br><br>
+                <span class="gc-green">+</span> Simple and fast<br>
+                <span class="gc-green">+</span> Predictable chunk sizes<br>
+                <span class="gc-red">&minus;</span> Cuts mid-word/sentence<br>
+                <span class="gc-red">&minus;</span> Loses context
+            </p>
+        </div>
+        <div class="card card-w3 card-blue">
+            <h4 class="gc-blue">Sentence-Based</h4>
+            <p style="font-size:0.55em; line-height:1.5;">
+                Split on sentence boundaries<br><br>
+                <span class="gc-green">+</span> Respects meaning<br>
+                <span class="gc-green">+</span> Complete thoughts<br>
+                <span class="gc-red">&minus;</span> Variable sizes<br>
+                <span class="gc-red">&minus;</span> Needs sentence detection
+            </p>
+        </div>
+        <div class="card card-w3 card-purple">
+            <h4 class="glow-purple">LangChain Recursive</h4>
+            <p style="font-size:0.55em; line-height:1.5;">
+                Smart separator hierarchy<br><br>
+                <span class="gc-green">+</span> Best of both worlds<br>
+                <span class="gc-green">+</span> Respects paragraphs first<br>
+                <span class="gc-green">+</span> Falls back gracefully<br>
+                Separators: &para; &rarr; . &rarr; space
+            </p>
+        </div>
+    </div>
+    <p class="small fragment" style="margin-top:15px;">In practice: <span class="glow-purple">Recursive</span> is the default choice. Use sentence-based for Q&amp;A. Fixed-size only for structured data.</p>
+    <aside class="notes">Three approaches, each with tradeoffs. Fixed-size is the simplest: every 200 characters, cut. But it may cut in the middle of the word "artificial" giving you "artifi" in one chunk and "cial" in the next. Sentence-based respects meaning boundaries but gives you variable-sized chunks. LangChain's recursive character splitter is the smartest: it tries to split on paragraph breaks first, then sentence breaks, then spaces, then characters. It gives you the most semantically meaningful chunks. In practice, recursive is what you should default to.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 18: INTERACTIVE TABS -->
+<!-- ============================== -->
+<section>
+    <h2>Interactive Tabs</h2>
+    <pre><code class="language-python">tab1, tab2, tab3 = st.tabs(["Fixed-Size", "Sentence", "Recursive"])
+
+with tab1:
+    size = st.slider("Chunk size (chars)", 50, 500, 200, key="fixed_size")
+    overlap = st.slider("Overlap", 0, 100, 20, key="fixed_overlap")
+    chunks = fixed_size_chunk(text, size, overlap)
+    st.write(f"**{len(chunks)} chunks** created")
+    for i, chunk in enumerate(chunks):
+        with st.expander(f"Chunk {i+1} ({len(chunk)} chars)"):
+            st.text(chunk)
+
+with tab2:
+    chunks = sentence_chunk(text)
+    # ... similar display
+
+with tab3:
+    from langchain.text_splitter import RecursiveCharacterTextSplitter
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=size, chunk_overlap=overlap)
+    chunks = splitter.split_text(text)
+    # ... similar display</code></pre>
+    <p class="small">Note the <code>key=</code> parameter &mdash; needed when multiple widgets have the same label.</p>
+    <aside class="notes">Here is how we implement the three strategies as tabs. Each tab has its own sliders for chunk size and overlap. The key parameter is important: when you have multiple sliders with the same label in different tabs, Streamlit needs a unique key to tell them apart. Inside each tab, we show the chunk count and use expanders to display each chunk. This lets students play with the parameters and immediately see how the chunks change.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 19: COMPARING RESULTS -->
+<!-- ============================== -->
+<section>
+    <h2>Comparing Results</h2>
+    <div class="two-col">
+        <div>
+            <pre><code class="language-python"># Stats comparison
+import pandas as pd
+
+stats = pd.DataFrame({
+    "Strategy": ["Fixed", "Sentence",
+                  "Recursive"],
+    "Chunks": [len(c1), len(c2), len(c3)],
+    "Avg Size": [avg1, avg2, avg3],
+    "Min": [min1, min2, min3],
+    "Max": [max1, max2, max3],
+})
+st.dataframe(stats, hide_index=True)
+
+# Bar chart comparison
+st.bar_chart(stats.set_index("Strategy")
+             [["Chunks"]])</code></pre>
+        </div>
+        <div>
+            <table class="compare-table">
+                <tr><th>Strategy</th><th>Chunks</th><th>Avg Size</th></tr>
+                <tr><td class="gc-red">Fixed</td><td>25</td><td>200</td></tr>
+                <tr><td class="gc-blue">Sentence</td><td>18</td><td>278</td></tr>
+                <tr><td class="glow-purple">Recursive</td><td>21</td><td>238</td></tr>
+            </table>
+            <p class="medium" style="margin-top:15px;">Key insight: fewer, more meaningful chunks often give <strong>better search results</strong> than many small fragments.</p>
+        </div>
+    </div>
+    <aside class="notes">After generating chunks with each strategy, we compare them quantitatively. A DataFrame shows chunk count, average size, minimum and maximum. A bar chart makes it visual. Students can see that fixed-size creates the most uniform chunks but the most of them. Sentence-based creates fewer but more variable chunks. Recursive strikes a balance. The important takeaway is that chunk quality matters more than quantity for downstream search performance.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 20: PART 4 DIVIDER -->
+<!-- ============================== -->
+<section data-background="linear-gradient(135deg, #1a1040 0%, #0d1117 100%)">
+    <div class="hour-bar"><div class="hour-pip active"></div><div class="hour-pip active"></div><div class="hour-pip active"></div><div class="hour-pip active"></div><div class="hour-pip"></div></div>
+    <h1>Part 4</h1>
+    <h2><span class="glow-cyan">Vector Search Page</span></h2>
+    <p class="medium">ChromaDB, semantic search, the full pipeline</p>
+    <aside class="notes">Now we put it all together. In this section, we build a vector search page that chunks documents, embeds them, stores them in ChromaDB, and lets users search semantically. This is the core of every RAG system.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 21: CHROMADB SETUP -->
+<!-- ============================== -->
+<section>
+    <h2>ChromaDB in 3 Lines</h2>
+    <pre><code class="language-python">from langchain_community.vectorstores import Chroma
+
+# Create a searchable vector database
+vectorstore = Chroma.from_texts(
+    texts=chunks,                    # your chunked documents
+    embedding=load_model(),          # cached embedding model
+    collection_name="my_docs"
+)
+
+# Search!
+results = vectorstore.similarity_search_with_relevance_scores(
+    query="How does photosynthesis work?",
+    k=3                              # return top 3 results
+)</code></pre>
+    <div class="feature-box fragment" style="text-align:center;">
+        <p class="medium" style="margin:0;">
+            <span class="step-num">1</span> Give it texts and an embedding model
+            <span class="step-num">2</span> It embeds and stores automatically
+            <span class="step-num">3</span> Query with natural language
+        </p>
+    </div>
+    <aside class="notes">ChromaDB through LangChain is remarkably simple. Three lines: create from texts with an embedding model, then search. Under the hood, Chroma embeds all your chunks, stores them as vectors, and when you query, it embeds your query and finds the nearest neighbors. The similarity_search_with_relevance_scores variant also returns how relevant each result is, which we will use to show confidence bars in the UI.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 22: SEARCH INTERFACE -->
+<!-- ============================== -->
+<section>
+    <h2>Search Interface</h2>
+    <pre><code class="language-python">query = st.text_input("Search your documents", "What is machine learning?")
+k = st.slider("Number of results", 1, 10, 3)
+
+if st.button("Search") and query:
+    results = vectorstore.similarity_search_with_relevance_scores(query, k=k)
+
+    for i, (doc, score) in enumerate(results):
+        with st.expander(f"Result {i+1} (relevance: {score:.2%})", expanded=(i==0)):
+            st.markdown(doc.page_content)
+            st.progress(float(score))          # visual relevance bar
+
+            if score > 0.8:
+                st.success("High relevance")
+            elif score > 0.5:
+                st.info("Moderate relevance")
+            else:
+                st.warning("Low relevance")</code></pre>
+    <p class="medium fragment" style="margin-top:12px;">Each result is an expander with the text, a relevance bar, and a colored indicator.</p>
+    <aside class="notes">The search interface is clean and informative. A text input for the query, a slider for how many results to show, and a search button. Each result appears in an expander. The first result is expanded by default. Inside, we show the actual text, a progress bar as a visual relevance indicator, and a colored status message. This gives users an immediate sense of how confident the search is. The pattern of using expanders for results keeps the page clean even with many results.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 23: FULL PIPELINE -->
+<!-- ============================== -->
+<section>
+    <h2>The Full Pipeline</h2>
+    <div class="pipeline-flow" style="gap:6px;">
+        <div class="pipeline-step" style="border-color:var(--g-red);">
+            <strong>Document</strong><br>
+            <span style="opacity:0.7;">raw text</span>
+        </div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="pipeline-step" style="border-color:var(--g-yellow);">
+            <strong>Chunk</strong><br>
+            <span style="opacity:0.7;">recursive split</span>
+        </div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="pipeline-step" style="border-color:var(--g-blue);">
+            <strong>Embed</strong><br>
+            <span style="opacity:0.7;">all-MiniLM-L6-v2</span>
+        </div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="pipeline-step" style="border-color:var(--agy-purple);">
+            <strong>Store</strong><br>
+            <span style="opacity:0.7;">ChromaDB</span>
+        </div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="pipeline-step" style="border-color:var(--agy-cyan);">
+            <strong>Query</strong><br>
+            <span style="opacity:0.7;">user question</span>
+        </div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="pipeline-step" style="border-color:var(--g-green);">
+            <strong>Retrieve</strong><br>
+            <span style="opacity:0.7;">top-k results</span>
+        </div>
+    </div>
+    <div class="feature-box" style="text-align:center;">
+        <p class="medium" style="margin:0;">This is the foundation of every <strong>RAG</strong> (Retrieval-Augmented Generation) system.</p>
+        <p class="medium" style="margin:8px 0 0 0; opacity:0.7;">ChatGPT + your documents = RAG. The retrieval part is exactly what we built.</p>
+    </div>
+    <pre class="fragment"><code class="language-python"># The entire pipeline in Streamlit
+text = st.text_area("Paste your document")
+chunks = splitter.split_text(text)                            # Chunk
+vectorstore = Chroma.from_texts(chunks, embedding=model)      # Embed + Store
+results = vectorstore.similarity_search(query, k=3)           # Query + Retrieve</code></pre>
+    <aside class="notes">Step back and see the full picture. Document goes in, gets chunked, each chunk gets embedded into a vector, vectors get stored in ChromaDB, user asks a question, the question gets embedded, nearest vectors are found, and the matching chunks are returned. This is exactly how retrieval-augmented generation works. When ChatGPT searches your documents, it does this pipeline. You have just built the retrieval half. Add an LLM on top to generate answers from the retrieved chunks, and you have a complete RAG system.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 24: PART 5 DIVIDER -->
+<!-- ============================== -->
+<section data-background="linear-gradient(135deg, #1a1040 0%, #0d1117 100%)">
+    <div class="hour-bar"><div class="hour-pip active"></div><div class="hour-pip active"></div><div class="hour-pip active"></div><div class="hour-pip active"></div><div class="hour-pip active"></div></div>
+    <h1>Part 5</h1>
+    <h2><span class="gc-green">Styling &amp; Deployment</span></h2>
+    <p class="medium">Custom CSS, secrets, GitHub, Streamlit Cloud</p>
+    <aside class="notes">Our app works. Now let us make it look professional and deploy it so the world can see it. We will cover custom styling, secrets management, and the deployment workflow from GitHub to Streamlit Cloud.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 25: CUSTOM CSS -->
+<!-- ============================== -->
+<section>
+    <h2>Custom CSS</h2>
+    <div class="two-col">
+        <div>
+            <pre><code class="language-python">st.markdown("""
+&lt;style&gt;
+    .stApp {
+        background-color: #0d1117;
+    }
+    .stButton > button {
+        background: linear-gradient(
+            135deg, #8b5cf6, #6d28d9);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 2rem;
+    }
+    .stMetric {
+        background: #161b22;
+        padding: 1rem;
+        border-radius: 12px;
+    }
+&lt;/style&gt;
+""", unsafe_allow_html=True)</code></pre>
+        </div>
+        <div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <div class="card card-red" style="width:100%; box-sizing:border-box;">
+                    <h4 class="gc-red">Before</h4>
+                    <p>Default white theme, generic buttons, plain layout</p>
+                </div>
+                <div class="card card-purple" style="width:100%; box-sizing:border-box;">
+                    <h4 class="glow-purple">After</h4>
+                    <p>Dark theme, gradient buttons, styled metrics, professional look</p>
+                </div>
+            </div>
+            <p class="small" style="margin-top:12px;"><code>unsafe_allow_html=True</code> lets you inject raw HTML/CSS into the page.</p>
+        </div>
+    </div>
+    <aside class="notes">Streamlit apps look good by default, but you can customize them with CSS. The trick is using st.markdown with unsafe_allow_html set to True. This lets you inject a style tag that overrides the default styling. You can change the background color, style buttons with gradients, add rounded corners to metric cards, and more. The CSS targets Streamlit's internal class names like stApp, stButton, and stMetric. This takes your app from looking like a prototype to looking like a product.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 26: SECRETS -->
+<!-- ============================== -->
+<section>
+    <h2>Secrets Management</h2>
+    <div class="two-col">
+        <div>
+            <h3>Local Development</h3>
+            <pre><code class="language-toml"># .streamlit/secrets.toml
+OPENAI_API_KEY = "sk-..."
+DATABASE_URL = "postgresql://..."
+APP_PASSWORD = "my-secret"</code></pre>
+            <pre><code class="language-python"># Access in code
+api_key = st.secrets["OPENAI_API_KEY"]
+db_url = st.secrets["DATABASE_URL"]</code></pre>
+            <p class="small" style="margin-top:8px;">Add <code>.streamlit/secrets.toml</code> to <code>.gitignore</code>!</p>
+        </div>
+        <div>
+            <h3>Streamlit Cloud</h3>
+            <div class="feature-box">
+                <p class="medium" style="margin:0;">In the Streamlit Cloud dashboard:</p>
+                <p class="medium" style="margin:10px 0 0 0;">
+                    <span class="step-num">1</span> Open your app settings<br>
+                    <span class="step-num" style="margin-top:6px;">2</span> Go to "Secrets"<br>
+                    <span class="step-num" style="margin-top:6px;">3</span> Paste your TOML content<br>
+                </p>
+                <p class="medium" style="margin:12px 0 0 0; opacity:0.7;">Same <code>st.secrets</code> API works in both environments.</p>
+            </div>
+        </div>
+    </div>
+    <aside class="notes">Never hardcode API keys in your code. Streamlit has a built-in secrets management system. Locally, you create a secrets.toml file in the .streamlit directory. In production on Streamlit Cloud, you paste the same TOML content into the app settings. Your code uses st.secrets with the key name, and it works identically in both environments. Always add your secrets file to gitignore so it never gets committed to version control.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 27: GITHUB SETUP -->
+<!-- ============================== -->
+<section>
+    <h2>GitHub Setup</h2>
+    <div class="feature-box" style="text-align:left;">
+        <pre><code class="language-bash"># Initialize your repository
+git init
+git add app.py requirements.txt .streamlit/config.toml pages/
+
+# Create .gitignore
+echo ".streamlit/secrets.toml" >> .gitignore
+echo "__pycache__/" >> .gitignore
+echo "*.pyc" >> .gitignore
+
+# Commit and push
+git commit -m "Initial Streamlit app"
+git branch -M main
+git remote add origin https://github.com/YOU/your-app.git
+git push -u origin main</code></pre>
+    </div>
+    <pre><code class="language-text"># requirements.txt
+streamlit>=1.32.0
+langchain>=0.1.0
+langchain-huggingface>=0.0.1
+langchain-community>=0.0.1
+chromadb>=0.4.0
+plotly>=5.18.0
+scikit-learn>=1.3.0
+sentence-transformers>=2.2.0</code></pre>
+    <aside class="notes">Before deploying, we need the code on GitHub. Initialize a git repo, add your app files and requirements, but make sure to gitignore your secrets file. The requirements.txt is critical: Streamlit Cloud reads it to install your dependencies. List every package your app imports. Pin minimum versions to avoid breaking changes. Push to a public or private GitHub repository.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 28: DEPLOY TO STREAMLIT CLOUD -->
+<!-- ============================== -->
+<section>
+    <h2>Deploy to <span class="st-color">Streamlit Cloud</span></h2>
+    <div style="max-width:700px; margin:0 auto;">
+        <div class="deploy-step">
+            <div class="deploy-num">1</div>
+            <div>Push your code to <strong>GitHub</strong></div>
+        </div>
+        <div class="deploy-step">
+            <div class="deploy-num">2</div>
+            <div>Go to <code>share.streamlit.io</code></div>
+        </div>
+        <div class="deploy-step">
+            <div class="deploy-num">3</div>
+            <div>Click <strong>"New app"</strong> &rarr; Connect your GitHub repo</div>
+        </div>
+        <div class="deploy-step">
+            <div class="deploy-num">4</div>
+            <div>Select your repo, branch, and <code>app.py</code></div>
+        </div>
+        <div class="deploy-step">
+            <div class="deploy-num">5</div>
+            <div>Click <strong>"Deploy"</strong></div>
+        </div>
+        <div class="deploy-step fragment">
+            <div class="deploy-num" style="background:var(--agy-purple);">&#10003;</div>
+            <div>Get a <strong>public URL</strong>: <code>your-app.streamlit.app</code></div>
+        </div>
+    </div>
+    <div class="feature-box fragment" style="text-align:center;">
+        <p class="medium" style="margin:0;"><strong>Free tier</strong> includes: 1 app, public URL, auto-redeploy on git push</p>
+        <p class="medium" style="margin:6px 0 0 0; opacity:0.7;">Every <code>git push</code> automatically redeploys your app.</p>
+    </div>
+    <aside class="notes">Deployment is incredibly simple. Five steps, no server configuration, no Docker, no CI/CD to set up. Go to share.streamlit.io, connect your GitHub account, select your repository and the main Python file, click deploy. In about two minutes, you get a public URL that anyone can access. The free tier gives you one app with a public URL. And the best part: every time you push to GitHub, the app automatically redeploys with your latest changes.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 29: GITHUB MCP IN GEMINI CLI -->
+<!-- ============================== -->
+<section>
+    <h2>GitHub MCP in <span class="gc-blue">Gemini CLI</span></h2>
+    <p class="medium" style="margin-bottom:12px;">Let your AI assistant manage your repository directly.</p>
+    <pre><code class="language-json">{
+    "mcpServers": {
+        "github": {
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-github"],
+            "env": {
+                "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_..."
+            }
+        }
+    }
+}</code></pre>
+    <div class="feature-box fragment">
+        <p class="medium" style="margin:0;">With GitHub MCP, Gemini CLI can:</p>
+        <div style="display:flex; gap:10px; margin-top:10px; justify-content:center;">
+            <div class="card card-w card-blue" style="margin:0;">
+                <h4>Create repos</h4>
+                <p>Initialize and push new projects</p>
+            </div>
+            <div class="card card-w card-green" style="margin:0;">
+                <h4>Manage PRs</h4>
+                <p>Create, review, and merge pull requests</p>
+            </div>
+            <div class="card card-w card-purple" style="margin:0;">
+                <h4>Deploy</h4>
+                <p>Push updates that auto-deploy to Streamlit Cloud</p>
+            </div>
+        </div>
+    </div>
+    <p class="small fragment">Add this to <code>~/.gemini/settings.json</code> and Gemini gets full GitHub access.</p>
+    <aside class="notes">Here is a bonus for your workflow. The Model Context Protocol lets AI assistants interact with external tools. This configuration gives Gemini CLI direct access to GitHub. It can create repositories, open pull requests, push code, and manage issues. Combined with Streamlit Cloud's auto-deploy, you can tell Gemini to push your code and your app updates automatically. Set this up once and your deployment workflow becomes conversational.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 30: WHAT YOU BUILT -->
+<!-- ============================== -->
+<section>
+    <h2>What You Built</h2>
+    <div class="pipeline-flow" style="gap:10px;">
+        <div class="pipeline-step" style="border-color:var(--g-blue); padding:14px 20px;">
+            <strong class="gc-blue">Embeddings<br>Explorer</strong>
+        </div>
+        <span class="flow-arrow">+</span>
+        <div class="pipeline-step" style="border-color:var(--agy-purple); padding:14px 20px;">
+            <strong class="glow-purple">Chunking<br>Strategies</strong>
+        </div>
+        <span class="flow-arrow">+</span>
+        <div class="pipeline-step" style="border-color:var(--agy-cyan); padding:14px 20px;">
+            <strong class="glow-cyan">Vector<br>Search</strong>
+        </div>
+        <span class="flow-arrow">+</span>
+        <div class="pipeline-step" style="border-color:var(--g-green); padding:14px 20px;">
+            <strong class="gc-green">Classification</strong>
+        </div>
+        <span class="flow-arrow">=</span>
+        <div class="pipeline-step" style="border-color:var(--st-color); padding:14px 20px; background:rgba(255,75,75,0.08);">
+            <strong class="st-color">Deployed<br>AI App</strong>
+        </div>
+    </div>
+    <div class="feature-box" style="text-align:center;">
+        <p class="medium" style="margin:0;">A <strong>multi-page Streamlit application</strong> that demonstrates:</p>
+        <div style="display:flex; gap:20px; justify-content:center; margin-top:12px;">
+            <div style="text-align:center;">
+                <p class="medium" style="margin:0; font-weight:600;">Text Embeddings</p>
+                <p class="small">Similarity, heatmaps</p>
+            </div>
+            <div style="text-align:center;">
+                <p class="medium" style="margin:0; font-weight:600;">Document Chunking</p>
+                <p class="small">3 strategies compared</p>
+            </div>
+            <div style="text-align:center;">
+                <p class="medium" style="margin:0; font-weight:600;">Semantic Search</p>
+                <p class="small">ChromaDB + LangChain</p>
+            </div>
+            <div style="text-align:center;">
+                <p class="medium" style="margin:0; font-weight:600;">Deployment</p>
+                <p class="small">GitHub to Cloud</p>
+            </div>
+        </div>
+    </div>
+    <aside class="notes">Let us take a moment to appreciate what you accomplished. You built a four-page AI web application. The embeddings explorer computes and visualizes similarity between any texts. The chunking page compares three splitting strategies interactively. The vector search page builds a real database and performs semantic queries. And you deployed it all to the cloud with a public URL. All of this using Python, with no web development knowledge required.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 31: CHEAT SHEET -->
+<!-- ============================== -->
+<section>
+    <h2>Streamlit Cheat Sheet</h2>
+    <div class="two-col" style="gap:20px;">
+        <div>
+            <table class="compare-table" style="font-size:0.5em;">
+                <tr><th colspan="2">Input Widgets</th></tr>
+                <tr><td><code>st.text_input()</code></td><td>Text box</td></tr>
+                <tr><td><code>st.text_area()</code></td><td>Multi-line text</td></tr>
+                <tr><td><code>st.slider()</code></td><td>Numeric slider</td></tr>
+                <tr><td><code>st.selectbox()</code></td><td>Dropdown</td></tr>
+                <tr><td><code>st.button()</code></td><td>Action trigger</td></tr>
+                <tr><td><code>st.file_uploader()</code></td><td>Upload files</td></tr>
+            </table>
+            <table class="compare-table" style="font-size:0.5em; margin-top:8px;">
+                <tr><th colspan="2">Layout</th></tr>
+                <tr><td><code>st.columns()</code></td><td>Side-by-side</td></tr>
+                <tr><td><code>st.tabs()</code></td><td>Tabbed sections</td></tr>
+                <tr><td><code>st.sidebar</code></td><td>Left panel</td></tr>
+                <tr><td><code>st.expander()</code></td><td>Collapsible</td></tr>
+            </table>
+        </div>
+        <div>
+            <table class="compare-table" style="font-size:0.5em;">
+                <tr><th colspan="2">Display</th></tr>
+                <tr><td><code>st.write()</code></td><td>Auto-format anything</td></tr>
+                <tr><td><code>st.metric()</code></td><td>KPI with delta</td></tr>
+                <tr><td><code>st.dataframe()</code></td><td>Interactive table</td></tr>
+                <tr><td><code>st.plotly_chart()</code></td><td>Plotly figure</td></tr>
+                <tr><td><code>st.progress()</code></td><td>Progress bar</td></tr>
+                <tr><td><code>st.success/info/warning/error()</code></td><td>Status alerts</td></tr>
+            </table>
+            <table class="compare-table" style="font-size:0.5em; margin-top:8px;">
+                <tr><th colspan="2">Performance</th></tr>
+                <tr><td><code>@st.cache_resource</code></td><td>Cache models, connections</td></tr>
+                <tr><td><code>@st.cache_data</code></td><td>Cache data, results</td></tr>
+                <tr><td><code>st.secrets</code></td><td>API keys, config</td></tr>
+            </table>
+        </div>
+    </div>
+    <aside class="notes">Here is your reference card. Keep this slide bookmarked. It has every widget, layout tool, display function, and performance pattern we used today. The left column is input and layout. The right column is display and performance. Between these functions, you can build almost any data or AI application.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 32: NEXT STEPS -->
+<!-- ============================== -->
+<section>
+    <h2>Next Steps</h2>
+    <div style="display:flex; gap:10px; justify-content:center;">
+        <div class="card card-w2 card-blue">
+            <h4 class="gc-blue">Add File Upload</h4>
+            <p>Let users upload their own documents instead of pasting text. Use <code>st.file_uploader()</code> and parse PDFs, DOCX, TXT.</p>
+        </div>
+        <div class="card card-w2 card-purple">
+            <h4 class="glow-purple">Add LLM Answers</h4>
+            <p>Connect an LLM (GPT, Gemini) to generate answers from retrieved chunks. Turn your search into a full RAG chatbot.</p>
+        </div>
+        <div class="card card-w2 card-green">
+            <h4 class="gc-green">Share Your App</h4>
+            <p>Deploy to Streamlit Cloud, share the URL with classmates, get feedback, iterate on the design.</p>
+        </div>
+    </div>
+    <div class="feature-box fragment" style="text-align:center; margin-top:15px;">
+        <p class="medium" style="margin:0;">Resources</p>
+        <p class="medium" style="margin:8px 0 0 0; opacity:0.7;">
+            <code>docs.streamlit.io</code> &mdash; Official docs &nbsp;|&nbsp;
+            <code>streamlit.io/gallery</code> &mdash; App gallery &nbsp;|&nbsp;
+            <code>langchain.com/docs</code> &mdash; LangChain
+        </p>
+    </div>
+    <aside class="notes">You have a solid foundation. Here are three directions to extend your app. First, add file upload so users can bring their own documents. Second, connect an LLM to generate natural language answers from retrieved chunks, turning your search into a full RAG chatbot. Third, deploy and share. Get feedback from your classmates, iterate on the design. The official Streamlit docs are excellent, and the gallery has hundreds of example apps for inspiration.</aside>
+</section>
+
+<!-- ============================== -->
+<!-- SLIDE 33: THANK YOU -->
+<!-- ============================== -->
+<section data-background="linear-gradient(160deg, #0d1117 0%, #1a1040 50%, #0d1117 100%)">
+    <h1>Thank you!</h1>
+    <p class="medium" style="opacity:0.6; margin-top:20px;">From Python scripts to deployed AI web apps &mdash;<br>you now have the <span class="glow-purple">complete toolkit</span>.</p>
+    <div style="margin-top:30px;">
+        <p class="medium">
+            <span class="st-color">Streamlit</span> +
+            <span class="gc-blue">LangChain</span> +
+            <span class="glow-cyan">ChromaDB</span> =
+            <span class="gc-green">Production AI App</span>
+        </p>
+    </div>
+    <p class="small" style="margin-top:40px;">Questions?</p>
+    <aside class="notes">That wraps up the Streamlit tutorial. You started with zero web development experience and now have a deployed multi-page AI application. The combination of Streamlit for the interface, LangChain for the AI pipeline, and ChromaDB for vector storage gives you everything you need to build real AI applications. Keep experimenting, keep building, and do not hesitate to ask questions.</aside>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/notes/notes.min.js"></script>
+<script>
+    Reveal.initialize({ hash: true, slideNumber: 'c/t', transition: 'slide', backgroundTransition: 'fade', plugins: [RevealHighlight, RevealNotes], width: 1200, height: 700, margin: 0.04 });
+</script>
+</body>
+</html>

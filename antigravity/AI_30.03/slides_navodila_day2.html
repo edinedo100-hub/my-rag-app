@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 2 — Instructions | FAMNIT AI Workshop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700;900&display=swap');
+
+        :root {
+            --r-background-color: #0d1117;
+            --r-main-font: 'DM Sans', sans-serif;
+            --r-heading-font: 'DM Sans', sans-serif;
+            --r-code-font: 'JetBrains Mono', monospace;
+            --r-main-color: #c9d1d9;
+            --r-heading-color: #f0f6fc;
+            --r-link-color: #8b5cf6;
+            --g-blue: #4285f4;
+            --g-red: #ea4335;
+            --g-yellow: #fbbc04;
+            --g-green: #34a853;
+            --agy-purple: #8b5cf6;
+            --agy-cyan: #22d3ee;
+            --agy-surface: #161b22;
+            --dnn-color: #ea4335;
+            --emb-color: #4285f4;
+            --pipe-color: #34a853;
+            --streamlit-color: #ff4b4b;
+        }
+
+        .reveal { font-family: 'DM Sans', sans-serif; font-size: 30px; }
+        .reveal h1, .reveal h2, .reveal h3 { font-family: 'DM Sans', sans-serif; font-weight: 700; text-transform: none; letter-spacing: -0.03em; }
+        .reveal h1 { font-size: 2.6em; line-height: 1.1; }
+        .reveal h2 { font-size: 1.7em; }
+        .reveal h3 { font-size: 1.2em; color: var(--agy-purple); }
+        .reveal code { font-family: 'JetBrains Mono', monospace; background: rgba(139,92,246,0.12); padding: 2px 8px; border-radius: 6px; font-size: 0.82em; }
+        .reveal pre code { background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; border-left: 4px solid var(--agy-purple); font-size: 0.68em; line-height: 1.5; }
+
+        .gc-blue { color: var(--g-blue); } .gc-red { color: var(--g-red); } .gc-yellow { color: var(--g-yellow); } .gc-green { color: var(--g-green); }
+        .glow-purple { color: var(--agy-purple); text-shadow: 0 0 25px rgba(139,92,246,0.4); }
+        .glow-cyan { color: var(--agy-cyan); text-shadow: 0 0 25px rgba(34,211,238,0.4); }
+        .dnn-color { color: var(--dnn-color); } .emb-color { color: var(--emb-color); } .pipe-color { color: var(--pipe-color); }
+        .streamlit-color { color: var(--streamlit-color); }
+
+        .card { background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 22px; margin: 8px; display: inline-block; vertical-align: top; text-align: left; }
+        .card h4 { margin: 0 0 8px 0; font-size: 0.85em; }
+        .card p { font-size: 0.6em; opacity: 0.8; margin: 0; line-height: 1.4; }
+        .card-w { width: 260px; } .card-w2 { width: 340px; } .card-w3 { width: 300px; }
+        .card-dnn { border-top: 3px solid var(--dnn-color); }
+        .card-emb { border-top: 3px solid var(--emb-color); }
+        .card-pipe { border-top: 3px solid var(--pipe-color); }
+        .card-purple { border-top: 3px solid var(--agy-purple); }
+        .card-streamlit { border-top: 3px solid var(--streamlit-color); }
+
+        .feature-box { background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(34,211,238,0.06)); border: 1px solid rgba(139,92,246,0.25); border-radius: 16px; padding: 28px; margin: 15px 0; }
+        .two-col { display: flex; gap: 35px; align-items: flex-start; }
+        .two-col > div { flex: 1; text-align: left; }
+
+        .small { font-size: 0.55em; opacity: 0.65; } .medium { font-size: 0.72em; }
+
+        .hour-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
+        .hour-pip { width: 60px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.12); }
+        .hour-pip.active { background: var(--agy-purple); box-shadow: 0 0 12px rgba(139,92,246,0.5); }
+
+        .timeline-row { display: flex; justify-content: center; align-items: flex-start; gap: 16px; margin: 25px 0; }
+        .t-block { text-align: center; width: 200px; }
+        .t-block .t-time { font-size: 0.5em; color: var(--agy-purple); font-weight: 700; }
+        .t-block .t-label { font-size: 0.52em; margin-top: 5px; line-height: 1.4; }
+        .t-arrow { font-size: 1.4em; color: var(--agy-purple); margin-top: 12px; }
+
+        .reveal ul, .reveal ol { display: block; text-align: left; margin-left: 1em; }
+        .reveal li { font-size: 0.75em; margin: 0.4em 0; line-height: 1.4; }
+
+        kbd { display: inline-block; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; padding: 2px 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.8em; }
+        .step-num { display: inline-block; width: 32px; height: 32px; line-height: 32px; border-radius: 50%; background: var(--agy-purple); color: white; text-align: center; font-weight: 700; font-size: 0.7em; margin-right: 8px; }
+
+        .pill { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.55em; font-weight: 600; }
+        .pill-dnn { background: rgba(234,67,53,0.15); color: var(--dnn-color); }
+        .pill-emb { background: rgba(66,133,244,0.15); color: var(--emb-color); }
+        .pill-pipe { background: rgba(52,168,83,0.15); color: var(--pipe-color); }
+        .pill-streamlit { background: rgba(255,75,75,0.15); color: var(--streamlit-color); }
+
+        .flow-arrow { display: inline-block; color: var(--agy-purple); font-size: 1.2em; margin: 0 8px; vertical-align: middle; }
+        .flow-box { display: inline-block; background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 16px; font-size: 0.65em; vertical-align: middle; }
+
+        .reveal .slides section { padding: 20px; }
+
+        .pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; margin: 15px 0; }
+        .pipeline-step { background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 16px; font-size: 0.58em; text-align: center; }
+
+        .compare-table { width: 100%; border-collapse: collapse; font-size: 0.55em; margin: 10px 0; }
+        .compare-table th { background: rgba(139,92,246,0.15); color: var(--agy-purple); padding: 10px 14px; text-align: left; font-weight: 700; border-bottom: 2px solid rgba(139,92,246,0.3); }
+        .compare-table td { padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .compare-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+        .checklist { list-style: none; padding: 0; margin: 0; }
+        .checklist li { font-size: 0.7em; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .checklist li::before { content: ''; display: inline-block; width: 18px; height: 18px; border: 2px solid var(--agy-purple); border-radius: 4px; margin-right: 10px; vertical-align: middle; }
+
+        .file-tree { font-family: 'JetBrains Mono', monospace; font-size: 0.6em; text-align: left; line-height: 1.8; }
+        .file-tree .folder { color: var(--g-blue); }
+        .file-tree .file { color: var(--agy-cyan); }
+        .file-tree .desc { color: rgba(255,255,255,0.4); }
+    </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================== -->
+<!-- TITLE -->
+<!-- ============================== -->
+<section data-background="linear-gradient(160deg, #0d1117 0%, #1a1040 50%, #0d1117 100%)">
+    <p style="font-size:0.7em; letter-spacing:0.15em; opacity:0.5; margin-bottom:5px;">FAMNIT AI WORKSHOP</p>
+    <h1 style="font-size:2.2em;">
+        Day 2<br><span class="glow-purple">Instructions</span>
+    </h1>
+    <p class="medium" style="opacity:0.6; margin-top:15px;">Deep Learning / Embeddings / Streamlit App</p>
+    <p class="medium" style="margin-top:8px;">with
+        <span class="gc-blue">G</span><span class="gc-red">o</span><span class="gc-yellow">o</span><span class="gc-blue">g</span><span class="gc-green">l</span><span class="gc-red">e</span>
+        <span class="glow-purple">Antigravity</span>
+    </p>
+    <p class="small" style="margin-top:40px;">Prerequisite: Python basics + Day 1 workshop</p>
+</section>
+
+<!-- ============================== -->
+<!-- DAY OVERVIEW -->
+<!-- ============================== -->
+<section>
+    <h2>Day Overview</h2>
+    <div class="feature-box">
+        <p class="medium" style="text-align:center; margin-bottom:15px;">Today we build <strong>from theory to application</strong>.</p>
+        <div class="pipeline-flow">
+            <div class="pipeline-step" style="border-color: var(--dnn-color);">
+                <strong class="dnn-color">Hours 1-3</strong><br>
+                Deep Learning<br>+ Embeddings
+            </div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="pipeline-step" style="border-color: var(--streamlit-color);">
+                <strong class="streamlit-color">Hours 4-5</strong><br>
+                Streamlit App<br>AI Explorer
+            </div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="pipeline-step" style="border-color: var(--pipe-color);">
+                <strong class="gc-green">Hour 6</strong><br>
+                Deploy +<br>GitHub
+            </div>
+        </div>
+    </div>
+    <p class="small fragment">Two notebooks + one complete web application</p>
+</section>
+
+<!-- ============================== -->
+<!-- AGENDA DETAIL -->
+<!-- ============================== -->
+<section>
+    <h2>Schedule</h2>
+    <table class="compare-table">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Topic</th>
+                <th>Tools</th>
+                <th>Outcome</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="pill pill-dnn">Hour 1</span></td>
+                <td>Training a DNN from scratch</td>
+                <td>PyTorch, Fashion-MNIST</td>
+                <td>Trained classifier (~88% acc)</td>
+            </tr>
+            <tr>
+                <td><span class="pill pill-emb">Hour 2</span></td>
+                <td>Embeddings + Chunking</td>
+                <td>LangChain, ChromaDB</td>
+                <td>Vector database + semantic search</td>
+            </tr>
+            <tr>
+                <td><span class="pill pill-pipe">Hour 3</span></td>
+                <td>Comparison: DNN vs Embeddings</td>
+                <td>sklearn, t-SNE</td>
+                <td>Decision guide: when to use what</td>
+            </tr>
+            <tr>
+                <td><span class="pill pill-streamlit">Hours 4-5</span></td>
+                <td>Building a Streamlit application</td>
+                <td>Streamlit, ChromaDB</td>
+                <td>Complete interactive app</td>
+            </tr>
+            <tr>
+                <td><span class="pill pill-streamlit">Hour 6</span></td>
+                <td>Deploy to GitHub + Render</td>
+                <td>Git, Render</td>
+                <td>App live on the web!</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- ============================== -->
+<!-- WHAT YOU NEED -->
+<!-- ============================== -->
+<section>
+    <h2>What You Need</h2>
+    <div style="display:flex; gap:10px; justify-content:center;">
+        <div class="card card-w card-purple">
+            <h4>Browser</h4>
+            <p>Chrome or Firefox. Google Colab runs in the browser &mdash; no local installation needed.</p>
+        </div>
+        <div class="card card-w card-emb">
+            <h4>Google Account</h4>
+            <p>To access Google Colab. Create one before the workshop if you don't have one.</p>
+        </div>
+        <div class="card card-w card-pipe">
+            <h4>GitHub Account</h4>
+            <p>To publish your app. Create one at github.com if you don't have one yet.</p>
+        </div>
+    </div>
+    <p class="medium fragment" style="margin-top:20px;">All code runs in <strong class="glow-purple">Google Colab</strong> &mdash; no local setup required.</p>
+</section>
+
+<!-- ============================== -->
+<!-- FILE STRUCTURE -->
+<!-- ============================== -->
+<section>
+    <h2>File Structure</h2>
+    <div class="feature-box">
+        <div class="file-tree">
+            <span class="folder">day 2/</span><br>
+            &nbsp;&nbsp;<span class="file">exercises_dnn_embeddings.ipynb</span> <span class="desc">&mdash; Notebook 1: DNN + Embeddings</span><br>
+            &nbsp;&nbsp;<span class="file">building_streamlit_app.ipynb</span> <span class="desc">&mdash; Notebook 2: Streamlit application</span><br>
+            &nbsp;&nbsp;<span class="file">slides_dnn_embeddings.html</span> <span class="desc">&mdash; Slides for Hours 1-3</span><br>
+            &nbsp;&nbsp;<span class="file">slides_building_streamlit.html</span> <span class="desc">&mdash; Slides for Hours 4-6</span><br>
+            &nbsp;&nbsp;<span class="folder">streamlit-app/</span> <span class="desc">&mdash; Final application</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">app.py</span> <span class="desc">&mdash; Main Streamlit file</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">requirements.txt</span> <span class="desc">&mdash; Python dependencies</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">render.yaml</span> <span class="desc">&mdash; Render deploy configuration</span><br>
+        </div>
+    </div>
+</section>
+
+<!-- ============================== -->
+<!-- PART 1: DNN + EMBEDDINGS -->
+<!-- ============================== -->
+<section data-background="linear-gradient(135deg, #1a1040 0%, #0d1117 100%)">
+    <div class="hour-bar"><div class="hour-pip active"></div><div class="hour-pip active"></div><div class="hour-pip active"></div><div class="hour-pip"></div><div class="hour-pip"></div></div>
+    <h1>Part 1</h1>
+    <h2><span class="dnn-color">Deep Learning</span> in Practice</h2>
+    <p class="medium">Notebook: <code>exercises_dnn_embeddings.ipynb</code></p>
+</section>
+
+<!-- HOUR 1 OVERVIEW -->
+<section>
+    <h2><span class="dnn-color">Hour 1:</span> Training a DNN</h2>
+    <div class="two-col">
+        <div>
+            <h3 style="color:var(--dnn-color);">What You'll Learn</h3>
+            <ul>
+                <li>What a <strong>neuron</strong> and <strong>layer</strong> are</li>
+                <li>How to build a network in <strong>PyTorch</strong></li>
+                <li>Forward pass, loss, backpropagation</li>
+                <li>The complete <strong>training loop</strong></li>
+                <li>Evaluation with a <strong>confusion matrix</strong></li>
+            </ul>
+        </div>
+        <div>
+            <h3 style="color:var(--dnn-color);">Steps</h3>
+            <ul>
+                <li><span class="step-num">1</span> Import + Setup</li>
+                <li><span class="step-num">2</span> Load Fashion-MNIST</li>
+                <li><span class="step-num">3</span> Visualize the data</li>
+                <li><span class="step-num">4-6</span> Neuron &rarr; Layer &rarr; Network</li>
+                <li><span class="step-num">7-12</span> Training loop</li>
+                <li><span class="step-num">13-14</span> Plots + Evaluation</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- HOUR 2 OVERVIEW -->
+<section>
+    <h2><span class="emb-color">Hour 2:</span> Embeddings + Chunking</h2>
+    <div class="two-col">
+        <div>
+            <h3 style="color:var(--emb-color);">What You'll Learn</h3>
+            <ul>
+                <li>Embeddings = <strong>GPS for meaning</strong></li>
+                <li>Cosine similarity between texts</li>
+                <li>3 <strong>chunking</strong> strategies</li>
+                <li><strong>ChromaDB</strong> vector database</li>
+                <li>Semantic search</li>
+            </ul>
+        </div>
+        <div>
+            <h3 style="color:var(--emb-color);">Steps</h3>
+            <ul>
+                <li><span class="step-num">1</span> What are embeddings?</li>
+                <li><span class="step-num">2-3</span> Create + compare</li>
+                <li><span class="step-num">4-7</span> Fixed / Sentence / Recursive</li>
+                <li><span class="step-num">8</span> Compare strategies</li>
+                <li><span class="step-num">9-10</span> ChromaDB + search</li>
+                <li><span class="step-num">11-12</span> Classification + t-SNE</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- HOUR 3 OVERVIEW -->
+<section>
+    <h2><span class="gc-green">Hour 3:</span> The Big Comparison</h2>
+    <div class="feature-box" style="text-align:center;">
+        <p class="medium" style="margin-bottom:20px;">We compare two approaches on the <strong>20 Newsgroups</strong> dataset:</p>
+        <div style="display:flex; gap:20px; justify-content:center;">
+            <div class="card card-w2 card-dnn">
+                <h4 class="dnn-color">DNN from Scratch</h4>
+                <p>TF-IDF &rarr; PyTorch network &rarr; train from nothing<br><br>
+                <strong>When:</strong> large labeled data, specific domain, full control</p>
+            </div>
+            <div class="card card-w2 card-emb">
+                <h4 class="emb-color">Embeddings + ML</h4>
+                <p>LangChain Embeddings &rarr; sklearn &rarr; no embedding training<br><br>
+                <strong>When:</strong> small data, fast prototypes, semantic understanding</p>
+            </div>
+        </div>
+    </div>
+    <p class="small fragment">At the end: a decision guide &mdash; when to use which approach</p>
+</section>
+
+<!-- ============================== -->
+<!-- PART 2: STREAMLIT -->
+<!-- ============================== -->
+<section data-background="linear-gradient(135deg, #1a1040 0%, #0d1117 100%)">
+    <div class="hour-bar"><div class="hour-pip"></div><div class="hour-pip"></div><div class="hour-pip"></div><div class="hour-pip active"></div><div class="hour-pip active"></div></div>
+    <h1>Part 2</h1>
+    <h2><span class="streamlit-color">Streamlit</span> Application</h2>
+    <p class="medium">Notebook: <code>building_streamlit_app.ipynb</code></p>
+</section>
+
+<!-- STREAMLIT OVERVIEW -->
+<section>
+    <h2>What We're Building</h2>
+    <div class="feature-box" style="text-align:center;">
+        <h3 style="color:var(--streamlit-color);">AI Explorer App</h3>
+        <p class="medium" style="margin-bottom:20px;">An interactive application with 4 pages:</p>
+        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+            <div class="card card-w card-purple">
+                <h4>Home</h4>
+                <p>Landing page with navigation</p>
+            </div>
+            <div class="card card-w card-emb">
+                <h4>Embeddings</h4>
+                <p>Text comparison + similarity matrix heatmap</p>
+            </div>
+            <div class="card card-w card-dnn">
+                <h4>Chunking</h4>
+                <p>Visualization of 3 chunking strategies</p>
+            </div>
+            <div class="card card-w card-pipe">
+                <h4>Vector Search</h4>
+                <p>Semantic search with ChromaDB</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STREAMLIT STEPS -->
+<section>
+    <h2>Build Steps</h2>
+    <table class="compare-table">
+        <thead>
+            <tr>
+                <th>Step</th>
+                <th>Description</th>
+                <th>You'll Learn</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="step-num">1</span></td>
+                <td>Hello World + <code>%%writefile</code></td>
+                <td><code>st.title()</code>, <code>st.write()</code></td>
+            </tr>
+            <tr>
+                <td><span class="step-num">2</span></td>
+                <td>Multi-page navigation</td>
+                <td><code>st.sidebar</code>, <code>st.selectbox</code></td>
+            </tr>
+            <tr>
+                <td><span class="step-num">3</span></td>
+                <td>Embeddings page</td>
+                <td><code>st.text_input</code>, <code>st.button</code></td>
+            </tr>
+            <tr>
+                <td><span class="step-num">4</span></td>
+                <td>Similarity matrix + heatmap</td>
+                <td>Plotly heatmap integration</td>
+            </tr>
+            <tr>
+                <td><span class="step-num">5</span></td>
+                <td>Chunking page with tabs</td>
+                <td><code>st.tabs</code>, <code>st.slider</code></td>
+            </tr>
+            <tr>
+                <td><span class="step-num">6</span></td>
+                <td>Vector Search page</td>
+                <td>ChromaDB + result display</td>
+            </tr>
+            <tr>
+                <td><span class="step-num">7</span></td>
+                <td>CSS styling + dark theme</td>
+                <td><code>st.markdown(unsafe_allow_html)</code></td>
+            </tr>
+            <tr>
+                <td><span class="step-num">8</span></td>
+                <td>Deploy: GitHub + Render</td>
+                <td>Git workflow + hosting</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- HOW WRITEFILE WORKS -->
+<section>
+    <h2>How <code>%%writefile</code> Works</h2>
+    <div class="two-col">
+        <div>
+            <div class="feature-box">
+                <p class="medium"><strong>In Jupyter:</strong></p>
+                <p class="medium" style="margin-top:10px;">A cell with <code>%%writefile app.py</code> at the top <strong>does not run the code</strong> &mdash; it <strong>writes it to a file</strong> instead.</p>
+                <p class="medium" style="margin-top:15px;">Each step adds new code to <code>app.py</code>, which you then run with Streamlit.</p>
+            </div>
+        </div>
+        <div>
+            <pre><code class="language-python">%%writefile app.py
+import streamlit as st
+
+st.title("AI Explorer")
+st.write("Hello from FAMNIT!")</code></pre>
+            <p class="small" style="margin-top:10px;">Then in the next cell:</p>
+            <pre><code class="language-bash">!streamlit run app.py &</code></pre>
+        </div>
+    </div>
+</section>
+
+<!-- ============================== -->
+<!-- DEPLOY -->
+<!-- ============================== -->
+<section>
+    <h2>Deploy to the Web</h2>
+    <div class="feature-box" style="text-align:center;">
+        <div class="pipeline-flow">
+            <div class="pipeline-step">
+                <strong>1. Git Init</strong><br>
+                <code>git init</code>
+            </div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="pipeline-step">
+                <strong>2. GitHub</strong><br>
+                <code>git push</code>
+            </div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="pipeline-step">
+                <strong>3. Render</strong><br>
+                Connect repo
+            </div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="pipeline-step" style="border-color: var(--pipe-color);">
+                <strong class="gc-green">Live!</strong><br>
+                .onrender.com
+            </div>
+        </div>
+    </div>
+    <div class="two-col" style="margin-top:20px;">
+        <div>
+            <h3>Git commands</h3>
+            <pre><code class="language-bash">git init
+git add .
+git commit -m "Initial commit"
+git remote add origin URL
+git push -u origin main</code></pre>
+        </div>
+        <div>
+            <h3>render.yaml</h3>
+            <pre><code class="language-yaml">services:
+  - type: web
+    name: ai-explorer
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app.py</code></pre>
+        </div>
+    </div>
+</section>
+
+<!-- ============================== -->
+<!-- CHECKLIST -->
+<!-- ============================== -->
+<section>
+    <h2>Checklist</h2>
+    <div class="two-col">
+        <div>
+            <h3 style="color:var(--dnn-color);">Part 1: DNN + Embeddings</h3>
+            <ul class="checklist">
+                <li>Open <code>exercises_dnn_embeddings.ipynb</code> in Colab</li>
+                <li>Trained DNN on Fashion-MNIST</li>
+                <li>Created text embeddings</li>
+                <li>Tested 3 chunking strategies</li>
+                <li>ChromaDB semantic search works</li>
+                <li>Compared DNN vs Embeddings</li>
+            </ul>
+        </div>
+        <div>
+            <h3 style="color:var(--streamlit-color);">Part 2: Streamlit App</h3>
+            <ul class="checklist">
+                <li>Open <code>building_streamlit_app.ipynb</code> in Colab</li>
+                <li>Hello World Streamlit page</li>
+                <li>4 pages with navigation</li>
+                <li>Embeddings + Chunking + Search</li>
+                <li>Dark theme + CSS styling</li>
+                <li>Pushed to GitHub</li>
+                <li>Deployed to Render</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ============================== -->
+<!-- TIPS -->
+<!-- ============================== -->
+<section>
+    <h2>Tips for Working</h2>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <div class="card card-w3 card-purple">
+            <h4>Read the errors!</h4>
+            <p>Python tracebacks are your friends. Read the <strong>last line</strong> &mdash; that's where the answer is.</p>
+        </div>
+        <div class="card card-w3 card-emb">
+            <h4>Run cells in order</h4>
+            <p>Don't skip cells. Each cell builds on the previous one. Skipping will break the code.</p>
+        </div>
+        <div class="card card-w3 card-dnn">
+            <h4>Experiment!</h4>
+            <p>Change the parameters! What happens if you increase the number of neurons? What if you reduce the overlap?</p>
+        </div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;">
+        <div class="card card-w3 card-pipe">
+            <h4>Ask for help</h4>
+            <p>Use <strong>Antigravity AI</strong> for coding help. Or raise your hand &mdash; we're here for you!</p>
+        </div>
+        <div class="card card-w3 card-streamlit">
+            <h4>Save regularly</h4>
+            <p>Colab can disconnect. <kbd>Ctrl+S</kbd> saves regularly! You can also use File &rarr; Save.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ============================== -->
+<!-- KEY CONCEPTS -->
+<!-- ============================== -->
+<section>
+    <h2>Key Concepts Today</h2>
+    <table class="compare-table">
+        <thead>
+            <tr>
+                <th>Concept</th>
+                <th>One Sentence</th>
+                <th>Where</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong class="dnn-color">Neuron</strong></td>
+                <td><code>y = f(w*x + b)</code> &mdash; multiply, add, activate</td>
+                <td>Hour 1</td>
+            </tr>
+            <tr>
+                <td><strong class="dnn-color">Backpropagation</strong></td>
+                <td>Figure out which weights caused the error, then fix them</td>
+                <td>Hour 1</td>
+            </tr>
+            <tr>
+                <td><strong class="emb-color">Embedding</strong></td>
+                <td>Text &rarr; vector of numbers that preserves meaning</td>
+                <td>Hour 2</td>
+            </tr>
+            <tr>
+                <td><strong class="emb-color">Chunking</strong></td>
+                <td>Split a long document into shorter pieces for better search</td>
+                <td>Hour 2</td>
+            </tr>
+            <tr>
+                <td><strong class="gc-green">ChromaDB</strong></td>
+                <td>Vector database &mdash; search by <em>meaning</em>, not keywords</td>
+                <td>Hours 2-3</td>
+            </tr>
+            <tr>
+                <td><strong class="streamlit-color">Streamlit</strong></td>
+                <td>Python script &rarr; interactive web app in minutes</td>
+                <td>Hours 4-6</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- ============================== -->
+<!-- LET'S GO -->
+<!-- ============================== -->
+<section data-background="linear-gradient(160deg, #0d1117 0%, #1a1040 50%, #0d1117 100%)">
+    <h1 style="font-size:2.5em;">
+        <span class="glow-purple">Let's Go!</span>
+    </h1>
+    <p class="medium" style="margin-top:20px;">
+        <span class="step-num">1</span> Open Google Colab<br><br>
+        <span class="step-num">2</span> Upload <code>exercises_dnn_embeddings.ipynb</code><br><br>
+        <span class="step-num">3</span> Open the accompanying slides to follow along
+    </p>
+    <p class="small" style="margin-top:40px;">Questions? Raise your hand or ask the AI.</p>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script>
+    Reveal.initialize({
+        hash: true,
+        slideNumber: true,
+        transition: 'slide',
+        backgroundTransition: 'fade',
+        plugins: [RevealHighlight],
+        width: 1280,
+        height: 720,
+    });
+</script>
+</body>
+</html>

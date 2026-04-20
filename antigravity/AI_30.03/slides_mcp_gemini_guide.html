@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Servers in Gemini CLI — Guide | FAMNIT AI Workshop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700;900&display=swap');
+
+        :root {
+            --r-background-color: #0d1117;
+            --r-main-font: 'DM Sans', sans-serif;
+            --r-heading-font: 'DM Sans', sans-serif;
+            --r-code-font: 'JetBrains Mono', monospace;
+            --r-main-color: #c9d1d9;
+            --r-heading-color: #f0f6fc;
+            --r-link-color: #8b5cf6;
+            --g-blue: #4285f4;
+            --g-red: #ea4335;
+            --g-yellow: #fbbc04;
+            --g-green: #34a853;
+            --agy-purple: #8b5cf6;
+            --agy-cyan: #22d3ee;
+            --agy-surface: #161b22;
+            --mcp-color: #f97316;
+            --github-color: #f0f6fc;
+        }
+
+        .reveal { font-family: 'DM Sans', sans-serif; font-size: 30px; }
+        .reveal h1, .reveal h2, .reveal h3 { font-family: 'DM Sans', sans-serif; font-weight: 700; text-transform: none; letter-spacing: -0.03em; }
+        .reveal h1 { font-size: 2.6em; line-height: 1.1; }
+        .reveal h2 { font-size: 1.7em; }
+        .reveal h3 { font-size: 1.2em; color: var(--agy-purple); }
+        .reveal code { font-family: 'JetBrains Mono', monospace; background: rgba(139,92,246,0.12); padding: 2px 8px; border-radius: 6px; font-size: 0.82em; }
+        .reveal pre code { background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; border-left: 4px solid var(--agy-purple); font-size: 0.62em; line-height: 1.5; }
+
+        .gc-blue { color: var(--g-blue); } .gc-red { color: var(--g-red); } .gc-yellow { color: var(--g-yellow); } .gc-green { color: var(--g-green); }
+        .glow-purple { color: var(--agy-purple); text-shadow: 0 0 25px rgba(139,92,246,0.4); }
+        .glow-cyan { color: var(--agy-cyan); text-shadow: 0 0 25px rgba(34,211,238,0.4); }
+        .glow-orange { color: var(--mcp-color); text-shadow: 0 0 25px rgba(249,115,22,0.4); }
+
+        .card { background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 22px; margin: 8px; display: inline-block; vertical-align: top; text-align: left; }
+        .card h4 { margin: 0 0 8px 0; font-size: 0.85em; }
+        .card p { font-size: 0.6em; opacity: 0.8; margin: 0; line-height: 1.4; }
+        .card-w { width: 260px; } .card-w2 { width: 340px; } .card-w3 { width: 300px; } .card-w4 { width: 380px; }
+        .card-purple { border-top: 3px solid var(--agy-purple); }
+        .card-orange { border-top: 3px solid var(--mcp-color); }
+        .card-blue { border-top: 3px solid var(--g-blue); }
+        .card-green { border-top: 3px solid var(--g-green); }
+        .card-cyan { border-top: 3px solid var(--agy-cyan); }
+
+        .feature-box { background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(34,211,238,0.06)); border: 1px solid rgba(139,92,246,0.25); border-radius: 16px; padding: 28px; margin: 15px 0; }
+        .mcp-box { background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(139,92,246,0.06)); border: 1px solid rgba(249,115,22,0.25); border-radius: 16px; padding: 28px; margin: 15px 0; }
+        .two-col { display: flex; gap: 35px; align-items: flex-start; }
+        .two-col > div { flex: 1; text-align: left; }
+
+        .small { font-size: 0.55em; opacity: 0.65; } .medium { font-size: 0.72em; }
+
+        .reveal ul, .reveal ol { display: block; text-align: left; margin-left: 1em; }
+        .reveal li { font-size: 0.75em; margin: 0.4em 0; line-height: 1.4; }
+
+        kbd { display: inline-block; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; padding: 2px 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.8em; }
+        .step-num { display: inline-block; width: 32px; height: 32px; line-height: 32px; border-radius: 50%; background: var(--agy-purple); color: white; text-align: center; font-weight: 700; font-size: 0.7em; margin-right: 8px; }
+        .step-num-orange { display: inline-block; width: 32px; height: 32px; line-height: 32px; border-radius: 50%; background: var(--mcp-color); color: white; text-align: center; font-weight: 700; font-size: 0.7em; margin-right: 8px; }
+
+        .pill { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.55em; font-weight: 600; }
+        .pill-mcp { background: rgba(249,115,22,0.15); color: var(--mcp-color); }
+        .pill-ready { background: rgba(52,168,83,0.15); color: var(--g-green); }
+        .pill-needs { background: rgba(234,67,53,0.15); color: var(--g-red); }
+
+        .flow-arrow { display: inline-block; color: var(--mcp-color); font-size: 1.2em; margin: 0 8px; vertical-align: middle; }
+        .flow-box { display: inline-block; background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 16px; font-size: 0.65em; vertical-align: middle; }
+
+        .reveal .slides section { padding: 20px; }
+
+        .pipeline-flow { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; margin: 15px 0; }
+        .pipeline-step { background: var(--agy-surface); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 16px; font-size: 0.58em; text-align: center; }
+
+        .compare-table { width: 100%; border-collapse: collapse; font-size: 0.55em; margin: 10px 0; }
+        .compare-table th { background: rgba(249,115,22,0.15); color: var(--mcp-color); padding: 10px 14px; text-align: left; font-weight: 700; border-bottom: 2px solid rgba(249,115,22,0.3); }
+        .compare-table td { padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .compare-table tr:hover td { background: rgba(255,255,255,0.03); }
+        .compare-table-purple th { background: rgba(139,92,246,0.15); color: var(--agy-purple); border-bottom: 2px solid rgba(139,92,246,0.3); }
+    </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================== -->
+<!-- TITLE -->
+<!-- ============================== -->
+<section data-background="linear-gradient(160deg, #0d1117 0%, #2a1a00 50%, #0d1117 100%)">
+    <p style="font-size:0.7em; letter-spacing:0.15em; opacity:0.5; margin-bottom:5px;">FAMNIT AI WORKSHOP</p>
+    <h1 style="font-size:2.0em;">
+        <span class="glow-orange">MCP Servers</span><br>in Gemini CLI
+    </h1>
+    <p class="medium" style="opacity:0.6; margin-top:15px;">How to connect AI to external tools</p>
+    <p class="medium" style="margin-top:8px;">
+        <span class="gc-blue">G</span><span class="gc-red">e</span><span class="gc-yellow">m</span><span class="gc-blue">i</span><span class="gc-green">n</span><span class="gc-red">i</span>
+        CLI +
+        <span class="glow-orange">Model Context Protocol</span>
+    </p>
+    <p class="small" style="margin-top:40px;">Setup and usage guide</p>
+</section>
+
+<!-- ============================== -->
+<!-- WHAT IS MCP -->
+<!-- ============================== -->
+<section>
+    <h2>What is <span class="glow-orange">MCP</span>?</h2>
+    <div class="mcp-box" style="text-align:center;">
+        <p class="medium" style="margin-bottom:20px;"><strong>Model Context Protocol</strong> &mdash; a standard interface between AI and external tools.</p>
+        <div class="pipeline-flow">
+            <div class="pipeline-step">
+                <strong>You</strong><br>
+                natural language
+            </div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="pipeline-step" style="border-color:var(--agy-purple);">
+                <strong class="glow-purple">Gemini CLI</strong><br>
+                AI assistant
+            </div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="pipeline-step" style="border-color:var(--mcp-color);">
+                <strong class="glow-orange">MCP Server</strong><br>
+                bridge / translator
+            </div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="pipeline-step" style="border-color:var(--g-green);">
+                <strong class="gc-green">API</strong><br>
+                GitHub, databases, ...
+            </div>
+        </div>
+    </div>
+    <p class="medium fragment" style="margin-top:15px;">Instead of <strong>copy-paste</strong>, AI directly manages repos, opens PRs, reads files ...</p>
+</section>
+
+<!-- ============================== -->
+<!-- CURRENT SETUP -->
+<!-- ============================== -->
+<section>
+    <h2>Current Configuration</h2>
+    <div class="two-col">
+        <div>
+            <h3 style="color:var(--mcp-color);">settings.json</h3>
+            <p class="medium">File location:</p>
+            <pre><code class="language-text">C:\Users\uros\.gemini\settings.json</code></pre>
+            <p class="medium" style="margin-top:15px;">You already have <strong>two servers</strong> configured:</p>
+        </div>
+        <div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <div class="card card-orange" style="width:100%;">
+                    <h4><span class="pill pill-needs">Needs token</span> GitHub</h4>
+                    <p>Repositories, issues, PRs, files</p>
+                </div>
+                <div class="card card-green" style="width:100%;">
+                    <h4><span class="pill pill-ready">Ready</span> Playwright</h4>
+                    <p>Browser automation, screenshots</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================== -->
+<!-- STEP 1: CREATE TOKEN -->
+<!-- ============================== -->
+<section data-background="linear-gradient(135deg, #1a1040 0%, #0d1117 100%)">
+    <h2><span class="step-num-orange">1</span> Create a GitHub Token</h2>
+    <div class="mcp-box">
+        <ol>
+            <li>Go to: <strong>github.com/settings/tokens?type=beta</strong></li>
+            <li>Click <strong>"Generate new token"</strong> (Fine-grained)</li>
+            <li>Name it: <code>Gemini CLI Workshop</code></li>
+            <li>Expiration: <strong>90 days</strong></li>
+            <li>Repositories: <strong>All repositories</strong></li>
+            <li>Set permissions:
+                <ul>
+                    <li><strong>Contents:</strong> Read and write</li>
+                    <li><strong>Issues:</strong> Read and write</li>
+                    <li><strong>Pull requests:</strong> Read and write</li>
+                    <li><strong>Metadata:</strong> Read-only</li>
+                </ul>
+            </li>
+            <li>Click <strong>Generate token</strong></li>
+            <li><strong>Copy the token</strong> (starts with <code>github_pat_...</code>)</li>
+        </ol>
+    </div>
+</section>
+
+<!-- ============================== -->
+<!-- STEP 2: UPDATE CONFIG -->
+<!-- ============================== -->
+<section>
+    <h2><span class="step-num-orange">2</span> Update Your Configuration</h2>
+    <div class="two-col">
+        <div>
+            <h3 style="color:var(--mcp-color);">Option A: Copilot Endpoint</h3>
+            <pre><code class="language-json">"github": {
+  "httpUrl":
+    "https://api.githubcopilot.com/mcp/",
+  "headers": {
+    "Authorization":
+      "Bearer github_pat_YOUR_TOKEN"
+  },
+  "timeout": 5000
+}</code></pre>
+            <p class="small">Requires GitHub Copilot subscription</p>
+        </div>
+        <div>
+            <h3 style="color:var(--g-green);">Option B: Open-Source Server</h3>
+            <pre><code class="language-json">"github": {
+  "command": "npx",
+  "args": [
+    "-y",
+    "@modelcontextprotocol/server-github"
+  ],
+  "env": {
+    "GITHUB_PERSONAL_ACCESS_TOKEN":
+      "github_pat_YOUR_TOKEN"
+  }
+}</code></pre>
+            <p class="small">Requires Node.js. No Copilot subscription needed.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ============================== -->
+<!-- STEP 3: VERIFY -->
+<!-- ============================== -->
+<section>
+    <h2><span class="step-num-orange">3</span> Verify It Works</h2>
+    <div class="feature-box">
+        <p class="medium" style="margin-bottom:15px;">Start Gemini CLI and try these prompts:</p>
+        <pre><code class="language-text">> List my GitHub repositories
+> Show recent issues in my workshop repo
+> What's the latest commit on the AI workshop repo?</code></pre>
+        <p class="medium" style="margin-top:15px;">If it works, you'll see your repositories and issues listed directly in the terminal.</p>
+    </div>
+    <p class="medium fragment" style="margin-top:15px;">If it doesn't work &rarr; check the troubleshooting slide at the end</p>
+</section>
+
+<!-- ============================== -->
+<!-- WORKSHOP TASKS -->
+<!-- ============================== -->
+<section>
+    <h2>What You Can Do with GitHub MCP</h2>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <div class="card card-w3 card-orange">
+            <h4>Manage Repositories</h4>
+            <p>"Create a new branch called day2-updates"<br><br>"Push the updated notebook"<br><br>"Create a PR titled Day 2 updates"</p>
+        </div>
+        <div class="card card-w3 card-blue">
+            <h4>Student Submissions</h4>
+            <p>"Create issues for each student assignment"<br><br>"List all open issues labeled student-submission"<br><br>"Add feedback on issue #5"</p>
+        </div>
+        <div class="card card-w3 card-green">
+            <h4>Code Review</h4>
+            <p>"Show the diff for PR #3"<br><br>"Review code changes in the latest PR"<br><br>"Create a release v2.0"</p>
+        </div>
+    </div>
+</section>
+
+<!-- ============================== -->
+<!-- GITHUB TOOLS TABLE -->
+<!-- ============================== -->
+<section>
+    <h2>GitHub MCP &mdash; Available Tools</h2>
+    <table class="compare-table">
+        <thead>
+            <tr>
+                <th>Tool</th>
+                <th>What It Does</th>
+                <th>Example Prompt</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>list_repositories</code></td>
+                <td>List your repositories</td>
+                <td>"Show my repos"</td>
+            </tr>
+            <tr>
+                <td><code>get_file_contents</code></td>
+                <td>Read a file from a repo</td>
+                <td>"Show the README of my AI repo"</td>
+            </tr>
+            <tr>
+                <td><code>create_or_update_file</code></td>
+                <td>Push a file</td>
+                <td>"Update exercises.ipynb"</td>
+            </tr>
+            <tr>
+                <td><code>create_issue</code></td>
+                <td>Create an issue</td>
+                <td>"Create issue for day 3 planning"</td>
+            </tr>
+            <tr>
+                <td><code>create_pull_request</code></td>
+                <td>Open a pull request</td>
+                <td>"Create a PR for day 2 changes"</td>
+            </tr>
+            <tr>
+                <td><code>create_branch</code></td>
+                <td>Create a branch</td>
+                <td>"Create branch day3-prep"</td>
+            </tr>
+            <tr>
+                <td><code>push_files</code></td>
+                <td>Push multiple files</td>
+                <td>"Push all day 2 files to the repo"</td>
+            </tr>
+            <tr>
+                <td><code>search_repositories</code></td>
+                <td>Search across GitHub</td>
+                <td>"Find Python ML workshop repos"</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- ============================== -->
+<!-- ADDITIONAL MCP SERVERS -->
+<!-- ============================== -->
+<section>
+    <h2>Additional MCP Servers</h2>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <div class="card card-w card-cyan">
+            <h4 class="glow-cyan">Filesystem</h4>
+            <p>Read/write local files. AI can edit your code directly.</p>
+            <p style="margin-top:8px; font-size:0.5em;"><code>@modelcontextprotocol/<br>server-filesystem</code></p>
+        </div>
+        <div class="card card-w card-orange">
+            <h4 class="glow-orange">Brave Search</h4>
+            <p>Web search without a browser. Free API key available.</p>
+            <p style="margin-top:8px; font-size:0.5em;"><code>@modelcontextprotocol/<br>server-brave-search</code></p>
+        </div>
+        <div class="card card-w card-purple">
+            <h4 class="glow-purple">Memory</h4>
+            <p>Persistent knowledge storage across sessions. Track student progress.</p>
+            <p style="margin-top:8px; font-size:0.5em;"><code>@modelcontextprotocol/<br>server-memory</code></p>
+        </div>
+    </div>
+    <p class="small fragment" style="margin-top:15px;">Add to the <code>mcpServers</code> section in <code>settings.json</code></p>
+</section>
+
+<!-- ============================== -->
+<!-- FILESYSTEM CONFIG -->
+<!-- ============================== -->
+<section>
+    <h2>Configuration: Filesystem</h2>
+    <div class="mcp-box">
+        <pre><code class="language-json">"filesystem": {
+  "command": "npx",
+  "args": [
+    "-y",
+    "@modelcontextprotocol/server-filesystem",
+    "C:/Onedrive/Personal/OneDrive/Famnit/AI"
+  ]
+}</code></pre>
+        <p class="medium" style="margin-top:15px;">Gemini CLI will be able to <strong>read and write</strong> files in the <code>Famnit/AI</code> directory.</p>
+    </div>
+</section>
+
+<!-- ============================== -->
+<!-- FULL EXAMPLE -->
+<!-- ============================== -->
+<section>
+    <h2>Complete <code>settings.json</code></h2>
+    <pre><code class="language-json" style="font-size:0.58em;">{
+  "selectedAuthType": "oauth-personal",
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "github_pat_YOUR_TOKEN"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem",
+               "C:/Onedrive/Personal/OneDrive/Famnit/AI"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    }
+  },
+  "experimental": { "enableAgents": true }
+}</code></pre>
+</section>
+
+<!-- ============================== -->
+<!-- FOR STUDENTS -->
+<!-- ============================== -->
+<section>
+    <h2>For Students: Quick Setup</h2>
+    <div class="feature-box">
+        <p class="medium" style="margin-bottom:15px;">If students want to use GitHub MCP on their own machine:</p>
+        <div style="text-align:left;">
+            <p class="medium"><span class="step-num-orange">1</span> Install Gemini CLI (requires Node.js)</p>
+            <p class="medium"><span class="step-num-orange">2</span> Create a GitHub token (Settings &rarr; Developer settings &rarr; Fine-grained tokens)</p>
+            <p class="medium"><span class="step-num-orange">3</span> Add to their <code>~/.gemini/settings.json</code>:</p>
+        </div>
+        <pre><code class="language-json">{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "THEIR_TOKEN"
+      }
+    }
+  }
+}</code></pre>
+        <p class="medium"><span class="step-num-orange">4</span> Restart Gemini CLI &rarr; try <code>"List my repositories"</code></p>
+    </div>
+</section>
+
+<!-- ============================== -->
+<!-- TROUBLESHOOTING -->
+<!-- ============================== -->
+<section>
+    <h2>Troubleshooting</h2>
+    <table class="compare-table compare-table-purple">
+        <thead>
+            <tr>
+                <th>Problem</th>
+                <th>Solution</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>"MCP server not found"</td>
+                <td>Make sure Node.js is installed: <code>node --version</code></td>
+            </tr>
+            <tr>
+                <td>"Authentication failed"</td>
+                <td>Token may have expired &mdash; generate a new one</td>
+            </tr>
+            <tr>
+                <td>"Timeout"</td>
+                <td>Increase timeout: <code>"timeout": 10000</code></td>
+            </tr>
+            <tr>
+                <td>"Permission denied"</td>
+                <td>Check token permissions (Contents, Issues, PRs)</td>
+            </tr>
+            <tr>
+                <td>Server won't start</td>
+                <td>Test manually: <code>npx -y @modelcontextprotocol/server-github</code></td>
+            </tr>
+        </tbody>
+    </table>
+    <p class="small" style="margin-top:15px;">If the server starts manually without errors, the issue is in your token or config path.</p>
+</section>
+
+<!-- ============================== -->
+<!-- SUMMARY -->
+<!-- ============================== -->
+<section data-background="linear-gradient(160deg, #0d1117 0%, #2a1a00 50%, #0d1117 100%)">
+    <h2>Summary</h2>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <div class="card card-w3 card-orange">
+            <h4>MCP = Bridge</h4>
+            <p>A standard protocol between AI CLI tools and external services. One interface for everything.</p>
+        </div>
+        <div class="card card-w3 card-blue">
+            <h4>GitHub MCP</h4>
+            <p>Manage repos, issues, PRs with natural language. No more manual copy-paste.</p>
+        </div>
+        <div class="card card-w3 card-green">
+            <h4>Extensible</h4>
+            <p>Filesystem, Search, Memory, SQLite ... add as needed. The ecosystem is growing.</p>
+        </div>
+    </div>
+    <p class="medium fragment" style="margin-top:25px;">
+        Configuration: <code>~/.gemini/settings.json</code><br>
+        <span class="small">One file &mdash; all your tools.</span>
+    </p>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script>
+    Reveal.initialize({
+        hash: true,
+        slideNumber: true,
+        transition: 'slide',
+        backgroundTransition: 'fade',
+        plugins: [RevealHighlight],
+        width: 1280,
+        height: 720,
+    });
+</script>
+</body>
+</html>
