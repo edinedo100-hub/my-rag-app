@@ -5,8 +5,6 @@ from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 
-# Use local model cache so it works on Render without a runtime download
-os.environ.setdefault("SENTENCE_TRANSFORMERS_HOME", "./model_cache")
 
 # ---------------------------------------------------------------------------
 # Page configuration
