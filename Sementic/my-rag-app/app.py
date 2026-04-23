@@ -187,7 +187,7 @@ def build_vectorstore():
         docs = [Document(page_content=text) for text in DOCUMENTS]
         chunks = splitter.split_documents(docs)
 
-        embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+        embeddings = SentenceTransformerEmbeddings(model_name="paraphrase-MiniLM-L3-v2")
         vectordb = Chroma.from_documents(chunks, embedding=embeddings)
         return vectordb
     except Exception as e:
@@ -218,7 +218,7 @@ def home_page():
         - **Streamlit** — web interface
         - **LangChain** — orchestration and text splitting
         - **ChromaDB** — vector database
-        - **Sentence Transformers** (`all-MiniLM-L6-v2`) — embeddings
+        - **Sentence Transformers** (`paraphrase-MiniLM-L3-v2`) — embeddings
         - **GitHub** — version control
         - **Render.com** — deployment
         """
