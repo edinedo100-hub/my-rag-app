@@ -7,5 +7,4 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: "3.11"
-      - key: SENTENCE_TRANSFORMERS_HOME
-        value: "./model_cache"
+
