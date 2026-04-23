@@ -1,8 +1,12 @@
+import os
 import streamlit as st
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
+
+# Use local model cache so it works on Render without a runtime download
+os.environ.setdefault("SENTENCE_TRANSFORMERS_HOME", "./model_cache")
 
 # ---------------------------------------------------------------------------
 # Page configuration
@@ -178,17 +182,17 @@ TOPICS = [
 # ---------------------------------------------------------------------------
 @st.cache_resource(show_spinner="Building the knowledge base...")
 def build_vectorstore():
-    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-    docs = [Document(page_content=text) for text in DOCUMENTS]
-    chunks = splitter.split_documents(docs)
+    try:
+        splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+        docs = [Document(page_content=text) for text in DOCUMENTS]
+        chunks = splitter.split_documents(docs)
 
-    embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-    vectordb = Chroma.from_documents(
-        chunks,
-        embedding=embeddings,
-        persist_directory="chroma_db",
-    )
-    return vectordb
+        embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+        vectordb = Chroma.from_documents(chunks, embedding=embeddings)
+        return vectordb
+    except Exception as e:
+        st.error(f"Failed to build knowledge base: {e}")
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -234,6 +238,10 @@ def search_page():
     )
 
     vectordb = build_vectorstore()
+
+    if vectordb is None:
+        st.error("The knowledge base could not be loaded. Please check the deployment logs.")
+        return
 
     query = st.text_input(
         "Your question",
