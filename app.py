@@ -1,4 +1,8 @@
 import os
+
+# Disable ChromaDB's anonymous telemetry (it only produces noisy log errors).
+os.environ.setdefault("ANONYMIZED_TELEMETRY", "False")
+
 import streamlit as st
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import SentenceTransformerEmbeddings
@@ -182,7 +186,10 @@ TOPICS = [
 def build_vectorstore():
     try:
         splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-        docs = [Document(page_content=text) for text in DOCUMENTS]
+        docs = [
+            Document(page_content=text, metadata={"topic": topic})
+            for text, topic in zip(DOCUMENTS, TOPICS)
+        ]
         chunks = splitter.split_documents(docs)
 
         embeddings = SentenceTransformerEmbeddings(model_name="paraphrase-MiniLM-L3-v2")
@@ -258,7 +265,8 @@ def search_page():
         for i, (doc, score) in enumerate(results, start=1):
             with st.container(border=True):
                 st.markdown(f"**Result {i}** — similarity distance: `{score:.4f}`")
-                st.write(doc.page_content.strip())
+                st.write(" ".join(doc.page_content.split()))
+                st.caption(f"Topic: {doc.metadata.get('topic', 'Unknown')}")
 
 
 # ---------------------------------------------------------------------------
@@ -269,8 +277,8 @@ page = st.sidebar.radio("Go to", ["Home", "Search"])
 
 st.sidebar.markdown("---")
 st.sidebar.caption(
-    "Master-level academic RAG project — Global Logistics & International "
-    "Business."
+    "Retrieval-augmented semantic search over a curated corpus on global "
+    "logistics and international business."
 )
 
 if page == "Home":

@@ -67,3 +67,8 @@ cython_debug/
 
 # macOS specific
 .DS_Store
+
+# Local vector store and virtual environments
+chroma_db/
+.venv/
+venv/
